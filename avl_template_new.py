@@ -1,8 +1,8 @@
 #username - complete info
 #id1      - complete info 
 #name1    - complete info 
-#id2      - complete info
-#name2    - complete info  
+#id2      - 316444892
+#name2    - Eden Buky
 
 
 
@@ -19,7 +19,7 @@ class AVLNode(object):
 		self.left = None
 		self.right = None
 		self.parent = None
-	#	self.size = 0
+		self.size = 0
 		self.height = -1 # Balance factor
 		
 
@@ -63,13 +63,21 @@ class AVLNode(object):
 	def getHeight(self):
 		return self.height
 
+	"""returns the size of the subtree
+
+		@rtype: int
+		@returns: the height of self, -1 if the node is virtual
+		"""
+	def getSize(self):
+		return self.size
 	"""sets left child
 
 	@type node: AVLNode
 	@param node: a node
 	"""
 	def setLeft(self, node):
-		self.setHight(self.getHight + 1)
+		self.height += 1
+		self.size += 1
 		self.left = node
 		return None
 
@@ -79,7 +87,8 @@ class AVLNode(object):
 	@param node: a node
 	"""
 	def setRight(self, node):
-		self.setHight(self.getHight + 1)
+		self.height += 1
+		self.size += 1
 		self.right = node
 		return None
 
@@ -90,11 +99,15 @@ class AVLNode(object):
 	"""
 	def setParent(self, node):
 		node.setHight(node.getHight + 1)
+		node.setHight(node.)
 		self.parent = node
 		return None
 
+	def setSize(self, k):
+		self.size = k
+		return None
 	"""sets value
-
+	
 	@type value: str
 	@param value: data
 	"""
@@ -158,7 +171,7 @@ class AVLTreeList(object):
 	"""
 	def treeSelect(T, k):
 		x = T.root
-		while (r >= 1):
+		while (r > 1):
 			r = x.left.size + 1
 			if k == r:
 				return x
@@ -204,17 +217,17 @@ class AVLTreeList(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def delete(self, i):
-		x = self.treeSelect(self,i+1)
-		parent = x.root.getparent()
-		parent.size = parent.size - 1
-		if x.left == None and x.right == None:
-			if x is parent.left:
-				parent.left = None
-			if x is parent.right:
-				parent.right = None
-		elif (x.left == None or x.right == None):
-			if x.left == None
-		x.parent = None
+		# x = self.treeSelect(self,i+1)
+		# parent = x.root.getparent()
+		# parent.size = parent.size - 1
+		# if x.left == None and x.right == None:
+		# 	if x is parent.left:
+		# 		parent.left = None
+		# 	if x is parent.right:
+		# 		parent.right = None
+		# elif (x.left == None or x.right == None):
+		# 	if x.left == None
+		# x.parent = None
 		return -1
 
 
