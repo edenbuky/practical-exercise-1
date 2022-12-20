@@ -99,7 +99,7 @@ class AVLNode(object):
 	"""
 	def setParent(self, node):
 		node.setHight(node.getHight + 1)
-		node.setHight(node.)
+		node.setSize(node.getSize + 1)
 		self.parent = node
 		return None
 
@@ -170,16 +170,15 @@ class AVLTreeList(object):
 	""""Tree-Select return the k'th smallest element in the list
 	"""
 	def treeSelect(T, k):
-		x = T.root
-		while (r > 1):
+		def treeSelectRec(x,k):
 			r = x.left.size + 1
 			if k == r:
 				return x
 			elif k < r:
-				x = x.left
+				return treeSelectRec(x.left,k)
 			else:
-				x = x.right
-				k = k - r
+				return treeSelectRec(x.right, k - r)
+		return treeSelectRec(T.root,k)
 
 	"""retrieves the value of the i'th item in the list
 
@@ -217,10 +216,13 @@ class AVLTreeList(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def delete(self, i):
-		# x = self.treeSelect(self,i+1)
-		# parent = x.root.getparent()
-		# parent.size = parent.size - 1
-		# if x.left == None and x.right == None:
+		if self.root == None:
+			return -1
+		# x is a pointer to the node we wish to delete
+		x = self.treeSelect(self,i+1)
+		parent = x.root.getParent()
+		parent.setSize(parent.getSize - 1)
+		if x.left == None and x.right == None:
 		# 	if x is parent.left:
 		# 		parent.left = None
 		# 	if x is parent.right:
@@ -229,6 +231,18 @@ class AVLTreeList(object):
 		# 	if x.left == None
 		# x.parent = None
 		return -1
+
+	def rightRotsation(self):
+		A = self.root.getLeft()
+		self.root.setLeft(A.root.getRight())
+		A.right = self.root
+		parent = self.root.getParent
+		A.root.setParent(parent)
+		if parent.getLeft() == self.root:
+			parent.setLeft(A.root)
+		else: parent.setRight(A.root)
+		self.root.setParent(A.root)
+
 
 
 	"""returns the value of the first item in the list
