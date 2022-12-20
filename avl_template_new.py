@@ -152,7 +152,7 @@ class AVLTreeList(object):
 
 	"""
 	def __init__(self):
-		#self.size = 0
+		self.size = 0
 		self.root = None
 		self.first = None
 		self.last = None
@@ -165,7 +165,7 @@ class AVLTreeList(object):
 	@returns: True if the list is empty, False otherwise
 	"""
 	def empty(self):
-		return None
+		return self.size == 0
 
 	""""Tree-Select return the k'th smallest element in the list
 	"""
@@ -261,24 +261,48 @@ class AVLTreeList(object):
 		else: parent.setRight(A.root)
 		self.root.setParent(A.root)
 
-	def leftRotsation(self):
+	def leftRotation(self):
 		pass
+
+
+	"""returns the first node
+	@rtype : AVLNode"""
+
+	def min(self):
+		current = self.root
+		while current.left.isRealNode():
+			current = current.left
+		return current
+
+	"""returns the last node
+		@rtype : AVLNode"""
+
+	def max(self):
+		current = self.root
+		while current.right.isRealNode():
+			current = current.left
+		return current
+
 
 	"""returns the value of the first item in the list
 
 	@rtype: str
 	@returns: the value of the first item, None if the list is empty
 	"""
-	def first(self):
-		return None
+	def first(self): #Min
+		node = self.min()
+		return node.getValue()
+
+
 
 	"""returns the value of the last item in the list
 
 	@rtype: str
 	@returns: the value of the last item, None if the list is empty
 	"""
-	def last(self):
-		return None
+	def last(self): #Max
+		node = self.max()
+		return node.getValue()
 
 	"""returns an array representing list 
 
