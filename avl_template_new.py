@@ -218,11 +218,12 @@ class AVLTreeList(object):
 		rotations = self.balance()
 		return rotations
 
-	def suc(self):
+	def successor(self, node):
 		pass
 
-	def pre(self):
+	def predecessor(self, node):
 		pass
+
 	def balance(self):
 		pass
 	"""deletes the i'th item in the list
@@ -234,35 +235,53 @@ class AVLTreeList(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def delete(self, i):
-		if self.root == None:
+		if self.root is None:
 			return -1
-		# x is a pointer to the node we wish to delete
-		x = self.treeSelect(self,i+1)
-		parent = x.root.getParent()
+		# dNode is a pointer to the node we wish to delete
+		dNode = self.treeSelect(self, i + 1)
+		rightSon = dNode.getLeft()
+		leftSon = dNode.getRight()
+		parent = dNode.getParent()
+
+		# Case 1: The node to delete has no children
+		if (rightSon is None or ( not rightSon.isRealNode())) and (leftSon is None or (not leftSon.isRealNode())):
+			if parent is None:
+				self.root = None
+			elif parent.getLeft() is dNode:
+				parent.setLeft(None)
+
 		parent.setSize(parent.getSize - 1)
-		if x.left == None and x.right == None:
-		# 	if x is parent.left:
-		# 		parent.left = None
-		# 	if x is parent.right:
-		# 		parent.right = None
-		# elif (x.left == None or x.right == None):
-		# 	if x.left == None
-		# x.parent = None
 		return -1
 
 	def rightRotsation(self):
 		A = self.root.getLeft()
 		self.root.setLeft(A.root.getRight())
-		A.right = self.root
+		self.root.getLeft.setParent(self.root)
+		A.setRight(self.root)
 		parent = self.root.getParent
 		A.root.setParent(parent)
-		if parent.getLeft() == self.root:
+		if parent.getLeft() is self.root:
 			parent.setLeft(A.root)
 		else: parent.setRight(A.root)
 		self.root.setParent(A.root)
+		A.setheight(A.getheight() + 1)
+		self.root.height -= 1
+
 
 	def leftRotsation(self):
-		pass
+		A = self.root.getRight()
+		self.root.setRight(A.root.getLeft())
+		self.root.getRight.setParent(self.root)
+		A.left = self.root
+		parent = self.root.getParent
+		A.root.setParent(parent)
+		if parent.getLeft() is self.root:
+			parent.setLeft(A.root)
+		else:
+			parent.setRight(A.root)
+		self.root.setParent(A.root)
+		A.setheight(A.getheight() + 1)
+		self.root.height -= 1
 
 	"""returns the value of the first item in the list
 
