@@ -152,7 +152,7 @@ class AVLTreeList(object):
 
 	"""
 	def __init__(self):
-		self.size = 0
+		#self.size = 0
 		self.root = None
 		self.first = None
 		self.last = None
@@ -218,7 +218,13 @@ class AVLTreeList(object):
 		rotations = self.balance()
 		return rotations
 
+	def suc(self):
+		pass
 
+	def pre(self):
+		pass
+	def balance(self):
+		pass
 	"""deletes the i'th item in the list
 
 	@type i: int
@@ -255,7 +261,8 @@ class AVLTreeList(object):
 		else: parent.setRight(A.root)
 		self.root.setParent(A.root)
 
-
+	def leftRotsation(self):
+		pass
 
 	"""returns the value of the first item in the list
 
