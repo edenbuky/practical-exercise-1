@@ -152,7 +152,7 @@ class AVLTreeList(object):
 
 	"""
 	def __init__(self):
-		#self.size = 0
+		self.size = 0
 		self.root = None
 		self.first = None
 		self.last = None
@@ -237,20 +237,57 @@ class AVLTreeList(object):
 	def delete(self, i):
 		if self.root is None:
 			return -1
-		# dNode is a pointer to the node we wish to delete
-		dNode = self.treeSelect(self, i + 1)
-		rightSon = dNode.getLeft()
-		leftSon = dNode.getRight()
-		parent = dNode.getParent()
+		virtual = AVLNode()
+		# del_node is a pointer to the node we wish to delete
+		del_node = self.treeSelect(self, i + 1)
+		def simpleDelete(T, del_node):
+			right_son = del_node.getLeft()
+			left_son = del_node.getRight()
+			parent = del_node.getParent()
 
-		# Case 1: The node to delete has no children
-		if (rightSon is None or ( not rightSon.isRealNode())) and (leftSon is None or (not leftSon.isRealNode())):
-			if parent is None:
-				self.root = None
-			elif parent.getLeft() is dNode:
-				parent.setLeft(None)
+			# Case 1: The node to delete has no children
+			if (right_son is None or ( not right_son.isRealNode())) and (left_son is None or (not left_son.isRealNode())):
+				if parent is None:
+					self.root = None
+					self.size = 0
+				elif parent.getLeft() is del_node:
+					parent.setLeft(virtual)
 
-		parent.setSize(parent.getSize - 1)
+				else:
+					parent.setRight(virtual)
+				parent.setHeight(parent.getHeight() - 1)
+				parent.setSize(parent.getSize() - 1)
+
+			# Case 2: The node to delete has one child
+			elif (right_son is None or ( not right_son.isRealNode())) or (left_son is None or (not left_son.isRealNode())):
+				if parent is None:
+					if left_son is not None:
+						self.root = left_son
+					else:
+						self.root = right_son
+					self.size = 1
+					self.root.setSize(1)
+				elif parent.getLeft() is del_node:
+					if left_son is not None:
+						parent.setLeft(left_son)
+					else:
+						parent.setLeft(right_son)
+					parent.setSize(parent.getSize() - 1)
+				else:
+					if left_son is not None:
+						parent.setRight(left_son)
+					else:
+						parent.setRight(right_son)
+					parent.setSize(parent.getSize() - 1)
+			else:
+				return False
+
+		# Case 3: The node to delete has two children
+		else:
+			#node_succ = self.successor(del_node)
+			#succ_parent = node_succ.getParent()
+
+
 		return -1
 
 	def rightRotsation(self):
@@ -264,7 +301,8 @@ class AVLTreeList(object):
 			parent.setLeft(A.root)
 		else: parent.setRight(A.root)
 		self.root.setParent(A.root)
-		A.setheight(A.getheight() + 1)
+		A.setHeight(A.getHeight() + 1)
+		A.setSize(A.getSize() + 1)
 		self.root.height -= 1
 
 
