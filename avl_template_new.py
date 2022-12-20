@@ -204,7 +204,19 @@ class AVLTreeList(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def insert(self, i, val):
-		return -1
+		newNode = AVLNode(val)
+		if i == self.size:
+			max_node = self.treeSelect(i - 1)
+			max_node.setRight(newNode)
+		else:
+			nxt = self.treeSelect(i + 1)
+			if nxt.left.isRealNode():
+				prev = self.treeSelect(i)
+				prev.setRight(newNode)
+			else:
+				nxt.setLeft(newNode)
+		rotations = self.balance()
+		return rotations
 
 
 	"""deletes the i'th item in the list
@@ -267,6 +279,16 @@ class AVLTreeList(object):
 	@returns: a list of strings representing the data structure
 	"""
 	def listToArray(self):
+		lst = []
+		self.lst_to_arr_rec(self.root, lst)
+		return lst
+
+	def lst_to_arr_rec(self, node, lst):
+		if ~node.isRealNode():
+			return
+		self.lst_to_arr_rec(node.left, lst)
+		lst.append(node.getValue())
+		self.lst_to_arr_rec(node.right, lst)
 		return None
 
 	"""returns the size of the list 
