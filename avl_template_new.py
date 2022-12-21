@@ -339,7 +339,7 @@ class AVLTreeList(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def delete(self, i):
-		if self.root is None:
+		if self.root is None or self.size < i or i < 0:
 			return -1
 		virtual = AVLNode()
 		# del_node is a pointer to the node we wish to delete
