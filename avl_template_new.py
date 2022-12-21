@@ -4,7 +4,7 @@
 #id2      - 316444892
 #name2    - Eden Buky
 
-
+import random
 
 """A class represnting a node in an AVL tree"""
 
@@ -12,7 +12,7 @@ class AVLNode(object):
 	"""Constructor, you are allowed to add more fields. 
 
 	@type value: str
-	@param value: data of your node
+	@param value: data of your node/
 	"""
 	def __init__(self, value):
 		self.value = value
@@ -20,7 +20,7 @@ class AVLNode(object):
 		self.right = None
 		self.parent = None
 		self.size = 0
-		self.height = -1 # Balance factor
+		self.height = -1
 		
 
 	"""returns the left child
@@ -191,7 +191,7 @@ class AVLTreeList(object):
 	def retrieve(self, i):
 		if i < 0 or i > self.size:
 			return None
-		return self.treeSelect(self,i+1).getValue()
+		return self.treeSelect(i+1).getValue()
 
 	"""inserts val at position i in the list
 
@@ -204,6 +204,13 @@ class AVLTreeList(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def insert(self, i, val):
+		newNode = AVLNode(val)
+		self._insert(newNode, i)
+		self.root, rotation = self.balance(self.root)
+		self.update_sizes(self.root)
+		return rotation
+
+	def _insert(self, node, i):
 		newNode = AVLNode(val)
 		if i == self.size:
 			max_node = self.treeSelect(i - 1)
@@ -218,13 +225,41 @@ class AVLTreeList(object):
 		rotations = self.balance()
 		return rotations
 
-	def suc(self):
+
+	def suc(self, node):
 		pass
 
 	def pre(self):
 		pass
-	def balance(self):
-		pass
+
+	def balance(self, node):
+		rotations = 0
+		if node.Bf() > 1:
+			if node.getLeft().Bf() < 0:
+				node.setLeft(self.leftRotation(node.getLeft()))
+				rotations += 1
+			node = self.rightRotation(node)
+			rotations += 1
+		elif node.Bf() < -1:
+			if node.getRight().Bf() > 0:
+				node.setRight(self.rightRotation(node.getRight()))
+				rotations += 1
+			node = self.leftRotation(node)
+			rotations += 1
+
+		return node, rotations
+
+	'''update all sizes of the nodes'''
+
+	def update_sizes(self, node):
+		if node.isRealNode():
+			self.update_sizes(node.getLeft())
+			new_size = 1 + node.getLeft().getSize() + node.getLeft().getSize()
+			node.setSize(new_size)
+			self.update_sizes(node.getRight())
+
+
+
 	"""deletes the i'th item in the list
 
 	@type i: int
@@ -250,19 +285,57 @@ class AVLTreeList(object):
 		# x.parent = None
 		return -1
 
-	def rightRotsation(self):
-		A = self.root.getLeft()
-		self.root.setLeft(A.root.getRight())
-		A.right = self.root
-		parent = self.root.getParent
-		A.root.setParent(parent)
-		if parent.getLeft() == self.root:
-			parent.setLeft(A.root)
-		else: parent.setRight(A.root)
-		self.root.setParent(A.root)
+	'''performs a right rotation arround input node.
+		@return the "new root" after rotation which is the right child of input node'''
 
-	def leftRotation(self):
-		pass
+	def rightRotation(self, node):
+		left_child = node.getLeft()
+		node.setLeft(left_child.getRight())
+
+		left_child.setRight(node)
+
+		#update heights
+		node.height = 1 + max(node.getLeft().getHeight(), node.getRight().getHeight())
+		left_child.height = 1 + max(left_child.getLeft().getHeight(), left_child.getRight().getHeight())
+
+		#update parent pointers
+		node.setParent(left_child)
+		left_child.setParent(node.getParent())
+
+		parent = node.getParent()
+		if parent.isRealNode():
+			if parent.getLeft() == node:
+				parent.setLeft(left_child)
+			else:
+				parent.setRight(left_child)
+		return left_child
+
+
+	'''performs a left rotation arround input node.
+	@return the "new root" after rotation which is the left child of input node'''
+
+	def leftRotation(self, node):
+		right_child = node.getRight()
+		node.setRight(right_child.getLeft())
+
+		right_child.setLeft(node)
+
+		# update heights
+		node.height = 1 + max(node.getLeft().getHeight(), node.getRight().getHeight())
+		right_child.height = 1 + max(right_child.getLeft().getHeight(), right_child.getRight().getHeight())
+
+		# update parent pointers
+		node.setParent(right_child)
+		right_child.setParent(node.getParent())
+
+		parent = node.getParent()
+		if parent.isRealNode():
+			if parent.getLeft() == node:
+				parent.setLeft(right_child)
+			else:
+				parent.setRight(right_child)
+
+		return right_child
 
 
 	"""returns the first node
@@ -328,7 +401,7 @@ class AVLTreeList(object):
 	@returns: the size of the list
 	"""
 	def length(self):
-		return None
+		return self.size
 
 	"""sort the info values of the list
 
