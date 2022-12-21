@@ -281,9 +281,11 @@ class AVLTreeList(object):
 					parent.setSize(parent.getSize() - 1)
 			else:
 				return False
+			return True
 
 		# Case 3: The node to delete has two children
-		else:
+		not_case3 = simpleDelete(self, del_node)
+		if not not_case3 :
 			#node_succ = self.successor(del_node)
 			#succ_parent = node_succ.getParent()
 
