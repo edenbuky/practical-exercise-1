@@ -204,26 +204,28 @@ class AVLTreeList(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def insert(self, i, val):
+		self.size += 1
 		newNode = AVLNode(val)
 		self._insert(newNode, i)
 		self.root, rotation = self.balance(self.root)
-		self.update_sizes(self.root)
+		#self.update_sizes(self.root)
 		return rotation
 
 	def _insert(self, node, i):
-		newNode = AVLNode(val)
-		if i == self.size:
-			max_node = self.treeSelect(i - 1)
-			max_node.setRight(newNode)
+
+		if i == self.length():
+			max_node = self.max(self.root)
+			max_node.setRight(node)
 		else:
+			# i < n
 			nxt = self.treeSelect(i + 1)
-			if nxt.left.isRealNode():
-				prev = self.treeSelect(i)
-				prev.setRight(newNode)
+			if not nxt.getLeft().isRealNode():
+				nxt.setLeft(node)
 			else:
-				nxt.setLeft(newNode)
-		rotations = self.balance()
-		return rotations
+				predecessor = self.max(nxt.getLeft())
+				predecessor.setRight(node)
+
+
 
 	def suc(self):
 		pass
@@ -247,6 +249,8 @@ class AVLTreeList(object):
 			rotations += 1
 
 		return node, rotations
+
+
 
 	'''update all sizes of the nodes'''
 
@@ -392,20 +396,20 @@ class AVLTreeList(object):
 		return right_child
 
 
-	"""returns the first node
+	"""returns the first node of subtree (or sublist) rooted at node
 	@rtype : AVLNode"""
 
-	def min(self):
-		current = self.root
+	def min(self, node):
+		current = node
 		while current.left.isRealNode():
 			current = current.left
 		return current
 
-	"""returns the last node
+	"""returns the last node of subtree (or sublist) rooted at node
 		@rtype : AVLNode"""
 
-	def max(self):
-		current = self.root
+	def max(self, node):
+		current = node
 		while current.right.isRealNode():
 			current = current.left
 		return current
@@ -417,7 +421,7 @@ class AVLTreeList(object):
 	@returns: the value of the first item, None if the list is empty
 	"""
 	def first(self): #Min
-		node = self.min()
+		node = self.min(self.root)
 		return node.getValue()
 
 
@@ -428,7 +432,7 @@ class AVLTreeList(object):
 	@returns: the value of the last item, None if the list is empty
 	"""
 	def last(self): #Max
-		node = self.max()
+		node = self.max(self.root)
 		return node.getValue()
 
 	"""returns an array representing list 
@@ -471,7 +475,29 @@ class AVLTreeList(object):
 	@returns: an AVLTreeList where the values are permuted randomly by the info of the original list. ##Use Randomness
 	"""
 	def permutation(self):
-		return None
+		stack = [self.root]
+		perm = AVLTreeList()
+		i = 0
+		while len(stack) > 0:
+			node = stack.pop()
+			perm.insert(i, node.getValue())
+			i += 1
+			if node.getLeft().isRealNode() and node.getRight().isRealNode():
+				rand = random.random()
+				if rand >= 0.5:
+					stack.append(node.getLeft())
+					stack.append(node.getRight())
+				else:
+					stack.append(node.getRight())
+					stack.append(node.getLeft())
+			elif node.getLeft().isRealNode():
+				stack.append(node.getLeft())
+			elif node.getRight().isRealNode():
+				stack.append(node.getRight())
+		return perm
+
+
+
 
 	"""concatenates lst to self
 
