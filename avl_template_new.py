@@ -225,11 +225,10 @@ class AVLTreeList(object):
 		rotations = self.balance()
 		return rotations
 
-
-	def suc(self, node):
+	def suc(self):
 		pass
 
-	def pre(self):
+	def predecessor(self, node):
 		pass
 
 	def balance(self, node):
@@ -269,20 +268,75 @@ class AVLTreeList(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def delete(self, i):
-		if self.root == None:
+		if self.root is None:
 			return -1
-		# x is a pointer to the node we wish to delete
-		x = self.treeSelect(self,i+1)
-		parent = x.root.getParent()
-		parent.setSize(parent.getSize - 1)
-		if x.left == None and x.right == None:
-		# 	if x is parent.left:
-		# 		parent.left = None
-		# 	if x is parent.right:
-		# 		parent.right = None
-		# elif (x.left == None or x.right == None):
-		# 	if x.left == None
-		# x.parent = None
+		virtual = AVLNode()
+		# del_node is a pointer to the node we wish to delete
+		del_node = self.treeSelect(self, i + 1)
+		def simpleDelete(T, del_node):
+			right_son = del_node.getLeft()
+			left_son = del_node.getRight()
+			parent = del_node.getParent()
+
+			# Case 1: The node to delete has no children
+			if (right_son is None or ( not right_son.isRealNode())) and (left_son is None or (not left_son.isRealNode())):
+				if parent is None:
+					self.root = None
+					self.size = 0
+				elif parent.getLeft() is del_node:
+					parent.setLeft(virtual)
+
+				else:
+					parent.setRight(virtual)
+				parent.setHeight(parent.getHeight() - 1)
+				parent.setSize(parent.getSize() - 1)
+
+			# Case 2: The node to delete has one child
+			elif (right_son is None or ( not right_son.isRealNode())) or (left_son is None or (not left_son.isRealNode())):
+				if parent is None:
+					if left_son is not None:
+						self.root = left_son
+					else:
+						self.root = right_son
+					self.size = 1
+					self.root.setSize(1)
+				elif parent.getLeft() is del_node:
+					if left_son is not None:
+						parent.setLeft(left_son)
+					else:
+						parent.setLeft(right_son)
+					parent.setSize(parent.getSize() - 1)
+				else:
+					if left_son is not None:
+						parent.setRight(left_son)
+					else:
+						parent.setRight(right_son)
+					parent.setSize(parent.getSize() - 1)
+			else:
+				return False
+			return True
+		not_case3 = simpleDelete(self, del_node)
+		# Case 3: The node to delete has two children
+		if not not_case3:
+			# Find the successor node (the smallest node in the right subtree)
+			node_succ = del_node.getRight()
+			while node_succ.getLeft().isRealNode():
+				node_succ = node_succ.getLeft()
+			# The successor node have one or zero children
+			simpleDelete(self,node_succ)
+			# Replace del_node with his successor
+			node_succ.setParent(del_node.getParent())
+			node_succ.setLeft(del_node.getLeft())
+			del_node.getLeft().setParent(node_succ)
+			del_node.getRight(del_node.getRight())
+			del_node.getRight().setParent(node_succ)
+			if del_node.getParent().getLeft() is del_node:
+				del_node.getParent().setLeft(node_succ)
+			else:
+				del_node.getParent().setRight(node_succ)
+
+
+
 		return -1
 
 	'''performs a right rotation arround input node.
