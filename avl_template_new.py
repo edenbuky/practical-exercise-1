@@ -608,8 +608,6 @@ class AVLTreeList(object):
 		return perm
 
 
-
-
 	"""concatenates lst to self
 
 	@type lst: AVLTreeList
@@ -618,7 +616,34 @@ class AVLTreeList(object):
 	@returns: the absolute value of the difference between the height of the AVL trees joined
 	"""
 	def concat(self, lst):
-		return None
+		h_self = self.root.getHeight()
+		h_lst = lst.root.getHeight()
+		h_diff = abs(h_lst -h_lst)
+		if h_self < h_lst:
+			pointer = lst.root
+			x = self.last()
+			self.delete(self.size)
+			for k in range(h_diff - 1):
+				pointer = pointer.getLeft()
+			x.setLeft(self.root)
+			self.root.setParent(x)
+			x.setRight(pointer.getLeft())
+			pointer.getLeft().setParent(x)
+			pointer.setLeft(x)
+			self.root = lst.root
+		else:
+			pointer = self.root
+			x = lst.first()
+			lst.delete(lst.size)
+			for k in range(h_diff - 1):
+				pointer = pointer.getRight()
+			x.setRight(lst.root)
+			lst.root.setParent(x)
+			x.setLeft(pointer.getRight())
+			pointer.getRight().setParent(x)
+			pointer.setRight(x)
+
+		return h_diff
 
 	"""searches for a *value* in the list
 
