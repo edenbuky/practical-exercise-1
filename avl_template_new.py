@@ -339,7 +339,7 @@ class AVLTreeList(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def delete(self, i):
-		if self.root is None or self.size < i or i < 0:
+		if self.empty() or self.size < i or i < 0:
 			return -1
 		virtual = AVLNode()
 		# del_node is a pointer to the node we wish to delete
@@ -406,9 +406,9 @@ class AVLTreeList(object):
 			else:
 				del_node.getParent().setRight(node_succ)
 
-
-
-		return -1
+		self.min()
+		self.max()
+		return self.balance()
 
 	'''performs a right rotation arround input node.
 		@return the "new root" after rotation which is the right child of input node'''
@@ -532,7 +532,53 @@ class AVLTreeList(object):
 	@returns: an AVLTreeList where the values are sorted by the info of the original list.
 	"""
 	def sort(self):
-		return None
+		sorted_tree = AVLTreeList()
+		if self.empty():
+			return sorted_tree
+		tree_valuse = self.listToArray()
+		self.quickSort(tree_valuse)
+		for i in range(len(tree_valuse)):
+			k = sorted_tree.size
+			sorted_tree.insert(k,tree_valuse[i])
+		return sorted_tree
+
+	def partition(self,array, low, high):
+
+		# choose the rightmost element as pivot
+		pivot = array[high]
+
+		# pointer for greater element
+		i = low - 1
+
+		# traverse through all elements
+		# compare each element with pivot
+		for j in range(low, high):
+			if array[j] <= pivot:
+				# If element smaller than pivot is found
+				# swap it with the greater element pointed by i
+				i = i + 1
+
+				# Swapping element at i with element at j
+				(array[i], array[j]) = (array[j], array[i])
+
+		# Swap the pivot element with the greater element specified by i
+		(array[i + 1], array[high]) = (array[high], array[i + 1])
+
+		# Return the position from where partition is done
+		return i + 1
+
+	def quickSort(self,array, low, high):
+		if low < high:
+			# Find pivot element such that
+			# element smaller than pivot are on the left
+			# element greater than pivot are on the right
+			pi = array.partition(array, low, high)
+
+			# Recursive call on the left of pivot
+			self.quickSort(array, low, pi - 1)
+
+			# Recursive call on the right of pivot
+			self.quickSort(array, pi + 1, high)
 
 	"""permute the info values of the list 
 
@@ -608,6 +654,21 @@ class AVLTreeList(object):
 		return self.root
 
 
-"class Tester():"
+class Tester():
+	def test_insertion(self):
+		tree = AVLTreeList()
+		tree.insert(3)
+		tree.insert(7)
+		tree.insert(2)
+		tree.insert(4)
+		tree.insert(6)
+		tree.insert(8)
+		self.assertEqual(tree.value, 5)
+		self.assertEqual(tree.left.value, 3)
+		self.assertEqual(tree.right.value, 7)
+		self.assertEqual(tree.left.left.value, 2)
+		self.assertEqual(tree.left.right.value, 4)
+		self.assertEqual(tree.right.left.value, 6)
+		self.assertEqual(tree.right.right.value, 8)
 
 
