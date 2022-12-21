@@ -282,12 +282,26 @@ class AVLTreeList(object):
 			else:
 				return False
 			return True
-
-		# Case 3: The node to delete has two children
 		not_case3 = simpleDelete(self, del_node)
-		if not not_case3 :
-			#node_succ = self.successor(del_node)
-			#succ_parent = node_succ.getParent()
+		# Case 3: The node to delete has two children
+		if not not_case3:
+			# Find the successor node (the smallest node in the right subtree)
+			node_succ = del_node.getRight()
+			while node_succ.getLeft().isRealNode():
+				node_succ = node_succ.getLeft()
+			# The successor node have one or zero children
+			simpleDelete(self,node_succ)
+			# Replace del_node with his successor
+			node_succ.setParent(del_node.getParent())
+			node_succ.setLeft(del_node.getLeft())
+			del_node.getLeft().setParent(node_succ)
+			del_node.getRight(del_node.getRight())
+			del_node.getRight().setParent(node_succ)
+			if del_node.getParent().getLeft() is del_node:
+				del_node.getParent().setLeft(node_succ)
+			else:
+				del_node.getParent().setRight(node_succ)
+
 
 
 		return -1
