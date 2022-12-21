@@ -679,21 +679,5 @@ class AVLTreeList(object):
 		return self.root
 
 
-class Tester():
-	def test_insertion(self):
-		tree = AVLTreeList()
-		tree.insert(3)
-		tree.insert(7)
-		tree.insert(2)
-		tree.insert(4)
-		tree.insert(6)
-		tree.insert(8)
-		self.assertEqual(tree.value, 5)
-		self.assertEqual(tree.left.value, 3)
-		self.assertEqual(tree.right.value, 7)
-		self.assertEqual(tree.left.left.value, 2)
-		self.assertEqual(tree.left.right.value, 4)
-		self.assertEqual(tree.right.left.value, 6)
-		self.assertEqual(tree.right.right.value, 8)
 
 
