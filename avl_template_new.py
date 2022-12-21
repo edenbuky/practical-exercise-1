@@ -227,11 +227,30 @@ class AVLTreeList(object):
 
 
 
-	def suc(self):
-		pass
+	def successor(self, node):
+		if node.getRight().isRealNode():
+			return self.min(node.getRight())
+		parent = node.getParent()
+		curr = node
+		while parent.isRealNode():
+			if parent.getRight() != curr:
+				break
+			curr = parent
+			parent = curr.getParent()
+		return parent
+
 
 	def predecessor(self, node):
-		pass
+		if node.getLeft().isRealNode():
+			return self.max(node.getLeft())
+		parent = node.getParent()
+		curr = node
+		while parent.isRealNode():
+			if parent.getLeft() != curr:
+				break
+			curr = parent
+			parent = curr.getParent()
+		return parent
 
 	def balance(self, node):
 		rotations = 0
@@ -519,6 +538,12 @@ class AVLTreeList(object):
 	def search(self, val):
 		return None
 
+	def search_rec(self, val, node):
+		if node.isRealNode():
+			self.search_rec(val, node.getLeft())
+
+
+
 
 
 	"""returns the root of the tree representing the list
@@ -527,7 +552,7 @@ class AVLTreeList(object):
 	@returns: the root, None if the list is empty
 	"""
 	def getRoot(self):
-		return None
+		return self.root
 
 
 "class Tester():"
