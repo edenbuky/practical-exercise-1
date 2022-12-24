@@ -22,6 +22,11 @@ class AVLNode(object):
 		self.size = 0
 		self.height = -1
 
+	def __repr__(self):
+		s = "value:" + str(self.value) + "right child: " + str(self.right) + "left child: " + str(self.left) + "parent: " + str(self.parent)
+		print(s)
+		return s
+
 
 	"""returns the left child
 	@rtype: AVLNode
@@ -419,17 +424,25 @@ class AVLTreeList(object):
 			while node_succ.getLeft().isRealNode():
 				node_succ = node_succ.getLeft()
 			# The successor node have one or zero children
-			simpleDelete(self,node_succ)
+			simpleDelete(self, node_succ)
 			# Replace del_node with his successor
 			node_succ.setParent(del_node.getParent())
 			node_succ.setLeft(del_node.getLeft())
-			del_node.getLeft().setParent(node_succ)
-			del_node.getRight(del_node.getRight())
-			del_node.getRight().setParent(node_succ)
-			if del_node.getParent().getLeft() is del_node:
-				del_node.getParent().setLeft(node_succ)
-			else:
-				del_node.getParent().setRight(node_succ)
+			node_succ.setRight(del_node.getRight())
+			if (node_succ.getParent()) and (node_succ.getLeft().isRealNode()):
+				node_succ.getLeft().setParent(node_succ)
+			if (node_succ.getParent()) and (node_succ.getRight().isRealNode()):
+				node_succ.getRight().setParent(node_succ)
+			if (node_succ.getParent()) and (node_succ.getParent().isRealNode()):
+				if node_succ.getParent().getLeft() is del_node:
+					node_succ.getParent().setLeft(node_succ)
+				else:
+					node_succ.getParent().setRight(node_succ)
+			del_node.setParent(None)
+			del_node.setRight(AVLNode())
+			del_node.setLeft(AVLNode())
+			if del_node is self.root:
+				self.root = node_succ
 
 		self.first = self.min(self.root)
 		self.last = self.max(self.root)
@@ -445,8 +458,8 @@ class AVLTreeList(object):
 		left_child.setRight(node)
 
 		#update heights
-		node.height = 1 + max(node.getLeft().getHeight(), node.getRight().getHeight())
-		left_child.height = 1 + max(left_child.getLeft().getHeight(), left_child.getRight().getHeight())
+		node.setHeight(1 + max(node.getLeft().getHeight(), node.getRight().getHeight()))
+		left_child.setHeight(1 + max(left_child.getLeft().getHeight(), left_child.getRight().getHeight()))
 
 		#update parent pointers
 		node.setParent(left_child)
@@ -471,8 +484,8 @@ class AVLTreeList(object):
 		right_child.setLeft(node)
 
 		# update heights
-		node.height = 1 + max(node.getLeft().getHeight(), node.getRight().getHeight())
-		right_child.height = 1 + max(right_child.getLeft().getHeight(), right_child.getRight().getHeight())
+		node.setHeight(1 + max(node.getLeft().getHeight(), node.getRight().getHeight()))
+		right_child.setHeight(1 + max(right_child.getLeft().getHeight(), right_child.getRight().getHeight()))
 
 		# update parent pointers
 		node.setParent(right_child)
@@ -492,7 +505,7 @@ class AVLTreeList(object):
 	@rtype : AVLNode"""
 
 	def min(self, node):
-		if not node.left.isRealNode():
+		if (node.getLeft()) or not node.getLeft().isRealNode():
 			return node
 		return self.min(node.left)
 
@@ -500,10 +513,8 @@ class AVLTreeList(object):
 		@rtype : AVLNode"""
 
 	def max(self, node):
-		if not node.getRight().isRealNode():
+		if (node.getLeft()) or not node.getRight().isRealNode():
 			return node
-		return self.max(node.getRight())
-
 
 	"""returns the value of the first item in the list
 
@@ -606,14 +617,14 @@ class AVLTreeList(object):
 	@returns: an AVLTreeList where the values are permuted randomly by the info of the original list. ##Use Randomness
 	"""
 	def permutation(self):
+		print("perm")
 		stack = [self.root]
-		perm = AVLTreeList()
-		i = 0
+		perm_lst = []
 		while len(stack) > 0:
-			print([x.value for x in stack])
+			a = [x.value for x in stack]
+			print(a)
 			node = stack.pop()
-			perm.node_insert(node, i)
-			i += 1
+			perm_lst.append(node.getValue())
 			if node.getLeft().isRealNode() and node.getRight().isRealNode():
 				rand = random.random()
 				if rand >= 0.5:
@@ -628,7 +639,13 @@ class AVLTreeList(object):
 				stack.append(node.getRight())
 
 
-		return perm
+		perm = AVLTreeList()
+		for i in range(len(perm_lst)):
+			val = perm_lst[i]
+			#perm.insert(i, val)
+			#perm.printt()
+
+		return perm_lst
 
 
 	"""concatenates lst to self
