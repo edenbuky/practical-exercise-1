@@ -122,8 +122,8 @@ class AVLNode(object):
 	@type h: int
 	@param h: the height
 	"""
-	def setHeight(self):
-		self.height = 1 + max(self.getLeft().getHeight(), self.getRight().getHeight())
+	def setHeight(self, k):
+		self.height = k
 
 
 	"""returns whether self is not a virtual node 
