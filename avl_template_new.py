@@ -1,6 +1,6 @@
 #username - complete info
-#id1      - complete info 
-#name1    - complete info 
+#id1      - complete info
+#name1    - complete info
 #id2      - 316444892
 #name2    - Eden Buky
 
@@ -9,7 +9,7 @@ import random
 """A class represnting a node in an AVL tree"""
 
 class AVLNode(object):
-	"""Constructor, you are allowed to add more fields. 
+	"""Constructor, you are allowed to add more fields.
 
 	@type value: str
 	@param value: data of your node/
@@ -21,7 +21,7 @@ class AVLNode(object):
 		self.parent = None
 		self.size = 0
 		self.height = -1
-		
+
 
 	"""returns the left child
 	@rtype: AVLNode
@@ -105,8 +105,11 @@ class AVLNode(object):
 		self.parent = node
 
 
-	def setSize(self):
-		self.size = 1 + self.getRight().getSize() + self.getLeft().getSize()
+	def setSize(self, k = None):
+		if k is None:
+			self.size = 1 + self.getRight().getSize() + self.getLeft().getSize()
+		else:
+			self.size = k
 
 	"""sets value
 	
@@ -122,8 +125,11 @@ class AVLNode(object):
 	@type h: int
 	@param h: the height
 	"""
-	def setHeight(self, k):
-		self.height = k
+	def setHeight(self, k = None):
+		if k is None:
+			self.height = 1 + max(self.getLeft().getHeight(), self.getRight().getHeight())
+		else:
+			self.height = k
 
 
 	"""returns whether self is not a virtual node 
@@ -217,22 +223,7 @@ class AVLTreeList(object):
 		new_node.height = 0
 		new_node.left = AVLNode()
 		new_node.right = AVLNode()
-		self._insert(new_node, i)
-		self.size += 1
-		curr = new_node
-		rotation = 0
-		while curr != self.root:
-			bf = curr.Bf()
-			height = curr.getHeight()
-			if abs(bf) > 1:
-				curr, rot = self.balance(curr)
-				rotation += rot
-			if curr.getHeight() != height:
-				curr.setHeight()
-			curr.setSize()
-			curr = curr.getParent()
-
-		return rotation
+		return self.node_insert(new_node, i)
 
 	def _insert(self, new_node, i):
 		if self.empty():
@@ -257,6 +248,24 @@ class AVLTreeList(object):
 				predecessor = self.max(nxt.getLeft())
 				predecessor.setRight(new_node)
 				new_node.setParent(predecessor)
+
+	def node_insert(self, new_node, i):
+		self._insert(new_node, i)
+		self.size += 1
+		curr = new_node
+		rotation = 0
+		while curr != self.root:
+			bf = curr.Bf()
+			height = curr.getHeight()
+			if abs(bf) > 1:
+				curr, rot = self.balance(curr)
+				rotation += rot
+			if curr.getHeight() != height:
+				curr.setHeight()
+			curr.setSize()
+			curr = curr.getParent()
+
+		return rotation
 
 
 
@@ -422,9 +431,9 @@ class AVLTreeList(object):
 			else:
 				del_node.getParent().setRight(node_succ)
 
-		self.min()
-		self.max()
-		return self.balance()
+		self.first = self.min(self.root)
+		self.last = self.max(self.root)
+		return self.balance(self.root)
 
 	'''performs a right rotation arround input node.
 		@return the "new root" after rotation which is the right child of input node'''
@@ -485,7 +494,7 @@ class AVLTreeList(object):
 	def min(self, node):
 		if not node.left.isRealNode():
 			return node
-		return min(node.left)
+		return self.min(node.left)
 
 	"""returns the last node of subtree (or sublist) rooted at node
 		@rtype : AVLNode"""
@@ -493,7 +502,7 @@ class AVLTreeList(object):
 	def max(self, node):
 		if not node.getRight().isRealNode():
 			return node
-		return max(node.getRight())
+		return self.max(node.getRight())
 
 
 	"""returns the value of the first item in the list
@@ -601,8 +610,9 @@ class AVLTreeList(object):
 		perm = AVLTreeList()
 		i = 0
 		while len(stack) > 0:
+			print([x.value for x in stack])
 			node = stack.pop()
-			perm.insert(i, node.getValue())
+			perm.node_insert(node, i)
 			i += 1
 			if node.getLeft().isRealNode() and node.getRight().isRealNode():
 				rand = random.random()
@@ -616,6 +626,8 @@ class AVLTreeList(object):
 				stack.append(node.getLeft())
 			elif node.getRight().isRealNode():
 				stack.append(node.getRight())
+
+
 		return perm
 
 
