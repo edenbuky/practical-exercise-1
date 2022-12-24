@@ -14,10 +14,10 @@ class AVLNode(object):
 	@type value: str
 	@param value: data of your node/
 	"""
-	def __init__(self, value):
+	def __init__(self, value = None):
 		self.value = value
-		self.left = None
-		self.right = None
+		self.left = AVLNode()
+		self.right = AVLNode()
 		self.parent = None
 		self.size = 0
 		self.height = -1
@@ -153,9 +153,11 @@ class AVLTreeList(object):
 	"""
 	def __init__(self):
 		self.size = 0
-		self.root = None
+		self.root = AVLNode()
 		self.first = None
 		self.last = None
+		self.firstItem = self.first #to erase
+		self.lastItem = self.last #to erase
 		# add your fields here
 
 
@@ -166,6 +168,9 @@ class AVLTreeList(object):
 	"""
 	def empty(self):
 		return self.size == 0
+
+	def getTreeHeight(self):
+		return self.root.getHeight()
 
 	""""Tree-Select return the k'th smallest element in the list
 	"""
@@ -204,9 +209,10 @@ class AVLTreeList(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def insert(self, i, val):
-		self.size += 1
 		newNode = AVLNode(val)
+		newNode.height = 0
 		self._insert(newNode, i)
+		self.size += 1
 		curr = newNode
 		rotation = 0
 		while curr != self.root:
@@ -222,30 +228,35 @@ class AVLTreeList(object):
 
 		return rotation
 
-	def _insert(self, node, i):
+	def _insert(self, new_node, i):
+		if not self.root.isRealNode():
+			self.root = new_node
+			self.first = new_node
+			self.last = new_node
+			return
 
 		if i == self.length():
 			max_node = self.max(self.root)
-			max_node.setRight(node)
-			node.setParent(max_node)
-			self.last = node
+			max_node.setRight(new_node)
+			new_node.setParent(max_node)
+			self.last = new_node
 		else:
 			# i < n
 			if i == 0:
-				self.first = node
+				self.first = new_node
 			nxt = self.treeSelect(i + 1)
-			if not nxt.getLeft().isRealNode():
-				nxt.setLeft(node)
-				node.setParent(nxt)
+			if nxt.left.isRealNose():
+				nxt.setLeft(new_node)
+				new_node.setParent(nxt)
 			else:
 				predecessor = self.max(nxt.getLeft())
-				predecessor.setRight(node)
-				node.setParent(predecessor)
+				predecessor.setRight(new_node)
+				new_node.setParent(predecessor)
 
 
 
 	def successor(self, node):
-		if node.getRight().isRealNode():
+		if node.right.isRealNode():
 			return self.min(node.getRight())
 		parent = node.getParent()
 		curr = node
@@ -343,7 +354,7 @@ class AVLTreeList(object):
 			return -1
 		virtual = AVLNode()
 		# del_node is a pointer to the node we wish to delete
-		del_node = self.treeSelect(self, i + 1)
+		del_node = self.treeSelect(i + 1)
 		def simpleDelete(T, del_node):
 			right_son = del_node.getLeft()
 			left_son = del_node.getRight()
@@ -497,7 +508,7 @@ class AVLTreeList(object):
 	@rtype: str
 	@returns: the value of the last item, None if the list is empty
 	"""
-	def last(self): #Max
+	def last(self): # Max
 		self.last.getValue()
 
 	"""returns an array representing list 
@@ -506,16 +517,13 @@ class AVLTreeList(object):
 	@returns: a list of strings representing the data structure
 	"""
 	def listToArray(self):
-		lst = []
-		self.lst_to_arr_rec(self.root, lst)
-		return lst
+		def lst_to_arr_rec(node):
+			if not node.isRealNode():
+				return []
+			return lst_to_arr_rec(node.left) + [node.getValue()] + lst_to_arr_rec(node.right)
+		return lst_to_arr_rec(self.root)
 
-	def lst_to_arr_rec(self, node, lst):
-		if ~node.isRealNode():
-			return
-		self.lst_to_arr_rec(node.left, lst)
-		lst.append(node.getValue())
-		self.lst_to_arr_rec(node.right, lst)
+
 
 
 	"""returns the size of the list 
@@ -618,7 +626,7 @@ class AVLTreeList(object):
 	def concat(self, lst):
 		h_self = self.root.getHeight()
 		h_lst = lst.root.getHeight()
-		h_diff = abs(h_lst -h_lst)
+		h_diff = abs(h_lst - h_self)
 		if h_self < h_lst:
 			pointer = lst.root
 			x = self.last()
@@ -677,6 +685,78 @@ class AVLTreeList(object):
 	"""
 	def getRoot(self):
 		return self.root
+
+	'''for tester'''
+	def append(self, val):
+		self.insert(self.length(), val)
+
+	### PRINT TREE FUNCTIONS ###
+
+	def printt(self):
+		out = ""
+		for row in self.printree(self.root):  # need printree.py file
+			out = out + row + "\n"
+		print(out)
+
+	def printree(self, t, bykey=True):
+		# for row in trepr(t, bykey):
+		#        print(row)
+		return self.trepr(t, False)
+
+	def trepr(self, t, bykey=False):
+		if t == None:
+			return ["#"]
+
+		thistr = str(t.key) if bykey else str(t.getValue())
+
+		return self.conc(self.trepr(t.left, bykey), thistr, self.trepr(t.right, bykey))
+
+	def conc(self, left, root, right):
+
+		lwid = len(left[-1])
+		rwid = len(right[-1])
+		rootwid = len(root)
+
+		result = [(lwid + 1) * " " + root + (rwid + 1) * " "]
+
+		ls = self.leftspace(left[0])
+		rs = self.rightspace(right[0])
+		result.append(ls * " " + (lwid - ls) * "_" + "/" + rootwid *
+					  " " + "\\" + rs * "_" + (rwid - rs) * " ")
+
+		for i in range(max(len(left), len(right))):
+			row = ""
+			if i < len(left):
+				row += left[i]
+			else:
+				row += lwid * " "
+
+			row += (rootwid + 2) * " "
+
+			if i < len(right):
+				row += right[i]
+			else:
+				row += rwid * " "
+
+			result.append(row)
+
+		return result
+
+	def leftspace(self, row):
+		# row is the first row of a left node
+		# returns the index of where the second whitespace starts
+		i = len(row) - 1
+		while row[i] == " ":
+			i -= 1
+		return i + 1
+
+	def rightspace(self, row):
+		# row is the first row of a right node
+		# returns the index of where the first whitespace ends
+		i = 0
+		while row[i] == " ":
+			i += 1
+		return i
 
 
 
