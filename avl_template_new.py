@@ -16,8 +16,8 @@ class AVLNode(object):
 	"""
 	def __init__(self, value = None):
 		self.value = value
-		self.left = AVLNode()
-		self.right = AVLNode()
+		self.left = None
+		self.right = None
 		self.parent = None
 		self.size = 0
 		self.height = -1
@@ -76,9 +76,10 @@ class AVLNode(object):
 	@param node: a node
 	"""
 	def setLeft(self, node):
-		self.height = 1 + max(node.getLeft().getHeight(), node.getRight().getHeight())
-		self.size += 1
 		self.left = node
+		self.height = 1 + max(self.getLeft().getHeight(), self.getRight().getHeight())
+		self.size += 1
+
 
 
 	"""sets right child
@@ -87,9 +88,10 @@ class AVLNode(object):
 	@param node: a node
 	"""
 	def setRight(self, node):
-		self.height = 1 + max(node.getLeft().getHeight(), node.getRight().getHeight())
-		self.size += 1
 		self.right = node
+		self.height = 1 + max(self.getLeft().getHeight(), self.getRight().getHeight())
+		self.size += 1
+
 
 
 	"""sets parent
@@ -154,6 +156,8 @@ class AVLTreeList(object):
 	def __init__(self):
 		self.size = 0
 		self.root = AVLNode()
+		self.root.left = AVLNode()
+		self.root.right = AVLNode()
 		self.first = None
 		self.last = None
 		self.firstItem = self.first #to erase
@@ -209,11 +213,13 @@ class AVLTreeList(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def insert(self, i, val):
-		newNode = AVLNode(val)
-		newNode.height = 0
-		self._insert(newNode, i)
+		new_node = AVLNode(val)
+		new_node.height = 0
+		new_node.left = AVLNode()
+		new_node.right = AVLNode()
+		self._insert(new_node, i)
 		self.size += 1
-		curr = newNode
+		curr = new_node
 		rotation = 0
 		while curr != self.root:
 			bf = curr.Bf()
@@ -229,12 +235,13 @@ class AVLTreeList(object):
 		return rotation
 
 	def _insert(self, new_node, i):
-		if not self.root.isRealNode():
+		if self.empty():
 			self.root = new_node
 			self.first = new_node
 			self.last = new_node
 			return
-
+		if i == 0:
+			self.first = new_node
 		if i == self.length():
 			max_node = self.max(self.root)
 			max_node.setRight(new_node)
@@ -242,10 +249,8 @@ class AVLTreeList(object):
 			self.last = new_node
 		else:
 			# i < n
-			if i == 0:
-				self.first = new_node
 			nxt = self.treeSelect(i + 1)
-			if nxt.left.isRealNose():
+			if not nxt.left.isRealNode():
 				nxt.setLeft(new_node)
 				new_node.setParent(nxt)
 			else:
@@ -478,19 +483,17 @@ class AVLTreeList(object):
 	@rtype : AVLNode"""
 
 	def min(self, node):
-		current = node
-		while current.left.isRealNode():
-			current = current.left
-		return current
+		if not node.left.isRealNode():
+			return node
+		return min(node.left)
 
 	"""returns the last node of subtree (or sublist) rooted at node
 		@rtype : AVLNode"""
 
 	def max(self, node):
-		current = node
-		while current.right.isRealNode():
-			current = current.left
-		return current
+		if not node.getRight().isRealNode():
+			return node
+		return max(node.getRight())
 
 
 	"""returns the value of the first item in the list
