@@ -689,7 +689,7 @@ class AVLTreeList(object):
 		h_diff = abs(h_lst - h_self)
 		if h_self < h_lst:
 			pointer = lst.root
-			x = self.last()
+			x = self.last
 			self.delete(self.size)
 			for k in range(h_diff - 1):
 				pointer = pointer.getLeft()
@@ -701,7 +701,7 @@ class AVLTreeList(object):
 			self.root = lst.root
 		else:
 			pointer = self.root
-			x = lst.first()
+			x = lst.first
 			lst.delete(lst.size)
 			for k in range(h_diff - 1):
 				pointer = pointer.getRight()
