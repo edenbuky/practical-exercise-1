@@ -207,6 +207,9 @@ class AVLTreeList(object):
 					return treeSelectRec(x.getRight(), k - r)
 		return treeSelectRec(T.root, k)
 
+	'''def getNode(self, i, node):
+		curr_index ='''
+
 	"""retrieves the value of the i'th item in the list
 
 	@type i: int
@@ -280,6 +283,16 @@ class AVLTreeList(object):
 			curr.setSize()
 			curr = curr.getParent()
 
+		curr = self.root
+		bf = curr.BF()
+		height = curr.getHeight()
+		if abs(bf) > 1:
+			curr, rot = self.balance(curr)
+			rotation += rot
+		if curr.getHeight() != height:
+			curr.setHeight()
+		curr.setSize()
+		self.root = curr
 		return rotation
 
 
@@ -337,6 +350,8 @@ class AVLTreeList(object):
 	@return[1] = number of rotations made'''
 
 	def balance(self, node):
+
+		node2 = node
 		balance = node.BF()
 		left_child = node.getLeft()
 		right_child = node.getRight()
@@ -344,29 +359,29 @@ class AVLTreeList(object):
 
 		# Left Left Case
 		if balance > 1 and left_child.BF() >= 0:
-			node = self.rightRotation(node)
+			node2 = self.rightRotation(node)
 			rotations += 1
 
 		# Left Right Case
 		elif balance > 1 and left_child.BF() < 0:
 			new_left = self.leftRotation(left_child)
 			node.setLeft(new_left)
-			node = self.rightRotation(node)
+			node2 = self.rightRotation(node)
 			rotations += 2
 
 		# Right Right Case
 		elif balance < -1 and right_child.BF() <= 0:
-			node = self.leftRotation(node)
+			node2 = self.leftRotation(node)
 			rotations += 1
 
 		# Right Left Case
 		elif balance < -1 and right_child.BF() > 0:
 			new_right = self.rightRotation(right_child)
 			node.setRight(new_right)
-			node = self.leftRotation(node)
+			node2 = self.leftRotation(node)
 			rotations += 2
 
-		return node, rotations
+		return node2, rotations
 
 
 
@@ -468,6 +483,7 @@ class AVLTreeList(object):
 	def rightRotation(self, node):
 		left_child = node.getLeft()
 		new_left = left_child.getRight()
+		parent = node.getParent()
 
 		left_child.setRight(node)
 		node.setLeft(new_left)
@@ -477,11 +493,10 @@ class AVLTreeList(object):
 		left_child.setHeight(1 + max(left_child.getLeft().getHeight(), left_child.getRight().getHeight()))
 
 		#update parent pointers
-		parent = node.getParent()
 		node.setParent(left_child)
 		left_child.setParent(parent)
 
-		if parent.isRealNode():
+		if parent is not None:
 			if parent.getLeft() == node:
 				parent.setLeft(left_child)
 			else:
@@ -507,7 +522,7 @@ class AVLTreeList(object):
 		node.setParent(right_child)
 		right_child.setParent(parent)
 
-		if parent.isRealNode():
+		if parent is not None:
 			if parent.getLeft() == node:
 				parent.setLeft(right_child)
 			else:
@@ -637,8 +652,6 @@ class AVLTreeList(object):
 		stack = [self.root]
 		perm_lst = []
 		while len(stack) > 0:
-			a = [x.value for x in stack]
-			print(a)
 			node = stack.pop()
 			perm_lst.append(node.getValue())
 			if node.getLeft().isRealNode() and node.getRight().isRealNode():
@@ -658,10 +671,9 @@ class AVLTreeList(object):
 		perm = AVLTreeList()
 		for i in range(len(perm_lst)):
 			val = perm_lst[i]
-			#perm.insert(i, val)
-			#perm.printt()
+			perm.insert(i, val)
 
-		return perm_lst
+		return perm
 
 
 	"""concatenates lst to self
