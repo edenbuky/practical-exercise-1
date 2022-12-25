@@ -58,7 +58,7 @@ def conc(self, left, root, right):
     return result
 
 def leftspace(self, row):
-    # row is the first row of a left node
+    # row is the first_node row of a left node
     # returns the index of where the second whitespace starts
     i = len(row)-1
     while row[i] == " ":
@@ -66,8 +66,8 @@ def leftspace(self, row):
     return i+1
 
 def rightspace(self, row):
-    # row is the first row of a right node
-    # returns the index of where the first whitespace ends
+    # row is the first_node row of a right node
+    # returns the index of where the first_node whitespace ends
     i = 0
     while row[i] == " ":
         i += 1
@@ -81,7 +81,7 @@ def interactive_tree():
     while True:
         choice = input("choose an operation you want to do with your AVLTreeList from the following: \n \
             empty(), retrieve(i), insert(i,val) delete(i),\n\
-            first(), last(), listToArray(), length(),\n\
+            first_node(), last_node(), listToArray(), length(),\n\
             split(i), concat, search(val) .\n\
             if you want to exit enter 'exit'\n\
             enter your choice here:  ")
@@ -109,10 +109,10 @@ def interactive_tree():
             T.delete(index)
             print("if '" + str(index) + "' was a valid index, the " +
                   str(index) + "'th item in the list had been deleted")
-        elif choice == "first()":
-            print("the first item in the list is: " + str(T.first()))
-        elif choice == "last()":
-            print("the last item in the list is: " + str(T.last()))
+        elif choice == "first_node()":
+            print("the first_node item in the list is: " + str(T.first_node()))
+        elif choice == "last_node()":
+            print("the last_node item in the list is: " + str(T.last_node()))
         elif choice == "listToArray()":
             print("your list as an array: ")
             print(T.listToArray())
@@ -125,7 +125,7 @@ def interactive_tree():
             val = res[1]
             T2 = res[2]
             ans = input(
-                "if you want to print the tree representing the first list enter 'yes'\n\
+                "if you want to print the tree representing the first_node list enter 'yes'\n\
                     enter your choice here:  ")
             if ans == "yes":
                 T1.printt()
@@ -143,7 +143,7 @@ def interactive_tree():
                 print(T2.listToArray())
             while True:
                 ans = input(
-                    "enter '1' if you want to keep working with the first list \n\
+                    "enter '1' if you want to keep working with the first_node list \n\
                     enter '2' if you want to keep working with the second list \n\
                     enter 'exit' if you want to exit\n\
                     enter your choice here:  ")

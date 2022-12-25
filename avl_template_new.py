@@ -173,8 +173,8 @@ class AVLTreeList(object):
 		self.root = AVLNode()
 		self.root.left = AVLNode()
 		self.root.right = AVLNode()
-		self.first = None
-		self.last = None
+		self.first_node = None
+		self.last_node = None
 		# add your fields here
 
 
@@ -196,6 +196,7 @@ class AVLTreeList(object):
 	@returns: the k'th smallest element in the list
 	"""
 	def treeSelect(T, k):
+
 		def treeSelectRec(x,k):
 			r = x.getLeft().getSize() + 1
 			if k == r:
@@ -207,8 +208,32 @@ class AVLTreeList(object):
 					return treeSelectRec(x.getRight(), k - r)
 		return treeSelectRec(T.root, k)
 
-	'''def getNode(self, i, node):
-		curr_index ='''
+	def update(self, node):
+		rotation = 0
+		curr = node
+		while curr != self.root:
+			bf = curr.BF()
+			height = curr.getHeight()
+			if abs(bf) > 1:
+				curr, rot = self.balance(curr)
+				rotation += rot
+			if curr.getHeight() != height:
+				curr.setHeight()
+			curr.setSize()
+			curr = curr.getParent()
+
+		curr = self.root
+		bf = curr.BF()
+		height = curr.getHeight()
+		if abs(bf) > 1:
+			curr, rot = self.balance(curr)
+			rotation += rot
+		if curr.getHeight() != height:
+			curr.setHeight()
+		curr.setSize()
+		self.root = curr
+		return rotation
+
 
 	"""retrieves the value of the i'th item in the list
 
@@ -235,27 +260,27 @@ class AVLTreeList(object):
 	"""
 	def insert(self, i, val):
 		if i < 0 or i > self.size:
-			print("blaaa")
 			return None
 		new_node = AVLNode(val)
 		new_node.height = 0
 		new_node.left = AVLNode()
 		new_node.right = AVLNode()
+		if i == 0:
+			self.first_node = new_node
+		if i == self.size:
+			self.last_node = new_node
 		return self.node_insert(new_node, i)
 
 	def _insert(self, new_node, i):
 		if self.empty():
 			self.root = new_node
-			self.first = new_node
-			self.last = new_node
+			self.first_node = new_node
+			self.last_node = new_node
 			return
-		if i == 0:
-			self.first = new_node
 		if i == self.length():
 			max_node = self.max(self.root)
 			max_node.setRight(new_node)
 			new_node.setParent(max_node)
-			self.last = new_node
 		else:
 			# i < n
 			nxt = self.treeSelect(i + 1)
@@ -270,29 +295,7 @@ class AVLTreeList(object):
 	def node_insert(self, new_node, i):
 		self._insert(new_node, i)
 		self.size += 1
-		curr = new_node
-		rotation = 0
-		while curr != self.root:
-			bf = curr.BF()
-			height = curr.getHeight()
-			if abs(bf) > 1:
-				curr, rot = self.balance(curr)
-				rotation += rot
-			if curr.getHeight() != height:
-				curr.setHeight()
-			curr.setSize()
-			curr = curr.getParent()
-
-		curr = self.root
-		bf = curr.BF()
-		height = curr.getHeight()
-		if abs(bf) > 1:
-			curr, rot = self.balance(curr)
-			rotation += rot
-		if curr.getHeight() != height:
-			curr.setHeight()
-		curr.setSize()
-		self.root = curr
+		rotation = self.update(new_node)
 		return rotation
 
 	'''successor refurns next node by rank'''
@@ -322,27 +325,6 @@ class AVLTreeList(object):
 			parent = curr.getParent()
 		return parent
 
-	'''balnces tree rooted in @input node- frot the root to the leaves
-	@return is a tuple(AVLNode, int)
-	@return[0] = top node after balancing
-	@return[1] = number of rotations made'''
-
-	def balance_top_bottom(self, node):
-		rotations = 0
-		if node.BF() > 1:
-			if node.getLeft().BF() < 0:
-				node.setLeft(self.leftRotation(node.getLeft()))
-				rotations += 1
-			node = self.rightRotation(node)
-			rotations += 1
-		elif node.BF() < -1:
-			if node.getRight().BF() > 0:
-				node.setRight(self.rightRotation(node.getRight()))
-				rotations += 1
-			node = self.leftRotation(node)
-			rotations += 1
-
-		return node, rotations
 
 	'''balnces @input node
 	@return is a tuple(AVLNode, int)
@@ -438,36 +420,41 @@ class AVLTreeList(object):
 						parent.setRight(right_son)
 					parent.setSize(parent.getSize() - 1)
 			else:
-				return False
-			return True
+				return False, 0
+			if parent is not None:
+				rotation = self.update(parent)
+			else:
+				rotation = 0
+			return True, rotation
 		if self.size == 0:
 			return -1
 		if self.empty() or self.size < i or i < 0:
 			return -1
 		if i == 0:
-
-			del_node = self.first
+			del_node = self.min(self.root)
 			parent = del_node.getParent()
-			simpleDelete(del_node)
+			ans = simpleDelete(del_node)[1]
 			if parent is None:
-				self.first = del_node.getRight()
+				self.first_node = del_node.getRight()
 			else:
-				self.first = parent
+				self.first_node = parent
 
 		elif i == self.size:
-			del_node = self.last
-			simpleDelete(del_node)
+			del_node = self.max(self.root)
+			ans = simpleDelete(del_node)[1]
+			if del_node.getParent() is None:
+				self.last_node = del_node.getRight()
+			else:
+				self.last_node = del_node.getParent()
 		else:
 			del_node = self.treeSelect(i + 1)
-			not_case3 = simpleDelete(del_node)
+			not_case3, ans = simpleDelete(del_node)
 			# Case 3: The node to delete has two children
 			if not not_case3:
 				# Find the successor node (the smallest node in the right subtree)
 				node_succ = self.successor(del_node)
-				#while node_succ.getLeft().isRealNode():
-				#	node_succ = node_succ.getLeft()
 				# The successor node have one or zero children
-				simpleDelete(node_succ)
+				ans = simpleDelete(node_succ)[1]
 				# Replace del_node with his successor
 				node_succ.setParent(del_node.getParent())
 				node_succ.setLeft(del_node.getLeft())
@@ -486,10 +473,8 @@ class AVLTreeList(object):
 				del_node.setLeft(AVLNode())
 				if del_node is self.root:
 					self.root = node_succ
-		if (self.root) and self.root.isRealNode():
-			self.root, rout = self.balance(self.root)
-			return rout
-		return 0
+		return ans
+
 
 	'''performs a right rotation arround input node.
 		@return the "new root" after rotation which is the right child of input node'''
@@ -545,7 +530,7 @@ class AVLTreeList(object):
 		return right_child
 
 
-	"""returns the first node of subtree (or sublist) rooted at node
+	"""returns the first_node node of subtree (or sublist) rooted at node
 	@rtype : AVLNode"""
 
 	def min(self, node):
@@ -553,7 +538,7 @@ class AVLTreeList(object):
 			return node
 		return self.min(node.getLeft())
 
-	"""returns the last node of subtree (or sublist) rooted at node
+	"""returns the last_node node of subtree (or sublist) rooted at node
 		@rtype : AVLNode"""
 
 	def max(self, node):
@@ -561,23 +546,23 @@ class AVLTreeList(object):
 			return node
 		return self.max(node.getRight())
 
-	"""returns the value of the first item in the list
+	"""returns the value of the first_node item in the list
 
 	@rtype: str
-	@returns: the value of the first item, None if the list is empty
+	@returns: the value of the first_node item, None if the list is empty
 	"""
-	def first(self): #Min
-		return self.first.getValue()
+	def first(self):
+		return self.first_node.getValue()
 
 
 
-	"""returns the value of the last item in the list
+	"""returns the value of the last_node item in the list
 
 	@rtype: str
-	@returns: the value of the last item, None if the list is empty
+	@returns: the value of the last_node item, None if the list is empty
 	"""
 	def last(self): # Max
-		self.last.getValue()
+		return self.last_node.getValue()
 
 	"""returns an array representing list 
 
@@ -705,7 +690,7 @@ class AVLTreeList(object):
 		h_diff = abs(h_lst - h_self)
 		if h_self < h_lst:
 			pointer = lst.root
-			x = self.last
+			x = self.last_node
 			self.delete(self.size)
 			for k in range(h_diff - 1):
 				pointer = pointer.getLeft()
@@ -717,7 +702,7 @@ class AVLTreeList(object):
 			self.root = lst.root
 		else:
 			pointer = self.root
-			x = lst.first
+			x = lst.first_node
 			lst.delete(lst.size)
 			for k in range(h_diff - 1):
 				pointer = pointer.getRight()
@@ -734,7 +719,7 @@ class AVLTreeList(object):
 	@type val: str
 	@param val: a value to be searched
 	@rtype: int
-	@returns: the first index that contains val, -1 if not found.
+	@returns: the first_node index that contains val, -1 if not found.
 	"""
 	def search(self, val):
 		def count_left_nodes(node):
@@ -819,7 +804,7 @@ class AVLTreeList(object):
 		return result
 
 	def leftspace(self, row):
-		# row is the first row of a left node
+		# row is the first_node row of a left node
 		# returns the index of where the second whitespace starts
 		i = len(row) - 1
 		while row[i] == " ":
@@ -827,8 +812,8 @@ class AVLTreeList(object):
 		return i + 1
 
 	def rightspace(self, row):
-		# row is the first row of a right node
-		# returns the index of where the first whitespace ends
+		# row is the first_node row of a right node
+		# returns the index of where the first_node whitespace ends
 		i = 0
 		while row[i] == " ":
 			i += 1
