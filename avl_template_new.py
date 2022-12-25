@@ -465,9 +465,10 @@ class AVLTreeList(object):
 
 	def rightRotation(self, node):
 		left_child = node.getLeft()
-		node.setLeft(left_child.getRight())
+		new_left = left_child.getRight()
 
 		left_child.setRight(node)
+		node.setLeft(new_left)
 
 		#update heights
 		node.setHeight(1 + max(node.getLeft().getHeight(), node.getRight().getHeight()))
@@ -517,16 +518,17 @@ class AVLTreeList(object):
 	@rtype : AVLNode"""
 
 	def min(self, node):
-		if (node.getLeft()) or not node.getLeft().isRealNode():
+		if (not node.getLeft()) or not node.getLeft().isRealNode():
 			return node
-		return self.min(node.left)
+		return self.min(node.getLeft())
 
 	"""returns the last node of subtree (or sublist) rooted at node
 		@rtype : AVLNode"""
 
 	def max(self, node):
-		if (node.getLeft()) or not node.getRight().isRealNode():
+		if (not node.getRight()) or not node.getRight().isRealNode():
 			return node
+		return self.max(node.getRight())
 
 	"""returns the value of the first item in the list
 
