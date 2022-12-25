@@ -295,7 +295,7 @@ class AVLTreeList(object):
 		self.root = curr
 		return rotation
 
-
+	'''successor refurns next node by rank'''
 
 	def successor(self, node):
 		if node.right.isRealNode():
@@ -400,7 +400,7 @@ class AVLTreeList(object):
 			parent = del_node.getParent()
 
 			# Case 1: The node to delete has no children
-			if (right_son is None or ( not right_son.isRealNode())) and (left_son is None or (not left_son.isRealNode())):
+			if ( not right_son.isRealNode()) and (not left_son.isRealNode()):
 				if parent is None:
 					self.root = None
 					self.size = 0
@@ -415,16 +415,16 @@ class AVLTreeList(object):
 					parent.setSize()
 
 			# Case 2: The node to delete has one child
-			elif (right_son is None or ( not right_son.isRealNode())) or (left_son is None or (not left_son.isRealNode())):
+			elif ( not right_son.isRealNode()) or (not left_son.isRealNode()):
 				if parent is None:
-					if left_son is not None:
+					if left_son.isRealNode():
 						self.root = left_son
 					else:
 						self.root = right_son
 					self.size = 1
 					self.root.setSize(1)
 				elif parent.getLeft() is del_node:
-					if left_son is not None:
+					if left_son.isRealNode():
 						parent.setLeft(left_son)
 					else:
 						parent.setLeft(right_son)
@@ -438,6 +438,8 @@ class AVLTreeList(object):
 			else:
 				return False
 			return True
+		if self.size == 0:
+			return -1
 		if self.empty() or self.size < i or i < 0:
 			return -1
 		if i == 0:
@@ -456,7 +458,7 @@ class AVLTreeList(object):
 				#while node_succ.getLeft().isRealNode():
 				#	node_succ = node_succ.getLeft()
 				# The successor node have one or zero children
-				simpleDelete(self, node_succ)
+				simpleDelete(node_succ)
 				# Replace del_node with his successor
 				node_succ.setParent(del_node.getParent())
 				node_succ.setLeft(del_node.getLeft())
@@ -475,7 +477,10 @@ class AVLTreeList(object):
 				del_node.setLeft(AVLNode())
 				if del_node is self.root:
 					self.root = node_succ
-		return self.balance(self.root)
+		if (self.root) and self.root.isRealNode():
+			self.root, rout = self.balance(self.root)
+			return rout
+		return 0
 
 	'''performs a right rotation arround input node.
 		@return the "new root" after rotation which is the right child of input node'''
@@ -571,6 +576,8 @@ class AVLTreeList(object):
 	@returns: a list of strings representing the data structure
 	"""
 	def listToArray(self):
+		if self.empty():
+			return []
 		def lst_to_arr_rec(node):
 			if not node.isRealNode():
 				return []
