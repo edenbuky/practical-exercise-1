@@ -200,11 +200,12 @@ class AVLTreeList(object):
 			r = x.getLeft().getSize() + 1
 			if k == r:
 				return x
-			elif k < r:
-				return treeSelectRec(x.left,k)
 			else:
-				return treeSelectRec(x.right, k - r)
-		return treeSelectRec(T.root,k)
+				if k < r:
+					return treeSelectRec(x.getLeft(), k)
+				elif k > r:
+					return treeSelectRec(x.getRight(), k - r)
+		return treeSelectRec(T.root, k)
 
 	"""retrieves the value of the i'th item in the list
 
@@ -231,6 +232,7 @@ class AVLTreeList(object):
 	"""
 	def insert(self, i, val):
 		if i < 0 or i > self.size:
+			print("blaaa")
 			return None
 		new_node = AVLNode(val)
 		new_node.height = 0
@@ -475,10 +477,10 @@ class AVLTreeList(object):
 		left_child.setHeight(1 + max(left_child.getLeft().getHeight(), left_child.getRight().getHeight()))
 
 		#update parent pointers
-		node.setParent(left_child)
-		left_child.setParent(node.getParent())
-
 		parent = node.getParent()
+		node.setParent(left_child)
+		left_child.setParent(parent)
+
 		if parent.isRealNode():
 			if parent.getLeft() == node:
 				parent.setLeft(left_child)
@@ -501,10 +503,10 @@ class AVLTreeList(object):
 		right_child.setHeight(1 + max(right_child.getLeft().getHeight(), right_child.getRight().getHeight()))
 
 		# update parent pointers
-		node.setParent(right_child)
-		right_child.setParent(node.getParent())
-
 		parent = node.getParent()
+		node.setParent(right_child)
+		right_child.setParent(parent)
+
 		if parent.isRealNode():
 			if parent.getLeft() == node:
 				parent.setLeft(right_child)
