@@ -399,6 +399,7 @@ class AVLTreeList(object):
 			left_son = del_node.getRight()
 			parent = del_node.getParent()
 
+
 			# Case 1: The node to delete has no children
 			if ( not right_son.isRealNode()) and (not left_son.isRealNode()):
 				if parent is None:
@@ -413,6 +414,7 @@ class AVLTreeList(object):
 					parent.setRight(AVLNode())
 					parent.setHeight()
 					parent.setSize()
+					del_node.setParent(None)
 
 			# Case 2: The node to delete has one child
 			elif ( not right_son.isRealNode()) or (not left_son.isRealNode()):
@@ -443,8 +445,15 @@ class AVLTreeList(object):
 		if self.empty() or self.size < i or i < 0:
 			return -1
 		if i == 0:
+
 			del_node = self.first
+			parent = del_node.getParent()
 			simpleDelete(del_node)
+			if parent is None:
+				self.first = del_node.getRight()
+			else:
+				self.first = parent
+
 		elif i == self.size:
 			del_node = self.last
 			simpleDelete(del_node)
