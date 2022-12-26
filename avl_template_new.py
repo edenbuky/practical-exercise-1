@@ -193,12 +193,12 @@ class AVLTreeList(object):
 	@type: (node, int)
 	@pre: 1 <= k < T.lenght()
 	@rtype: node
-	@returns: the k'th smallest element in the list
+	@returns: the k-1'th smallest element of the list (lst[k-1])
 	"""
 	def treeSelect(T, k):
 
 		def treeSelectRec(x,k):
-			r = x.getLeft().getSize() + 1
+			r = x.getLeft().getSize() + 1 if x.getLeft() else 0
 			if k == r:
 				return x
 			else:
@@ -232,6 +232,7 @@ class AVLTreeList(object):
 			curr.setHeight()
 		curr.setSize()
 		self.root = curr
+		self.size = self.root.getSize()
 		return rotation
 
 
@@ -277,7 +278,7 @@ class AVLTreeList(object):
 			self.first_node = new_node
 			self.last_node = new_node
 			return
-		if i == self.length():
+		if i == self.size:
 			max_node = self.max(self.root)
 			max_node.setRight(new_node)
 			new_node.setParent(max_node)
@@ -376,85 +377,31 @@ class AVLTreeList(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def delete(self, i):
-		def simpleDelete(del_node):
-			right_son = del_node.getLeft()
-			left_son = del_node.getRight()
-			parent = del_node.getParent()
-
-
-			# Case 1: The node to delete has no children
-			if ( not right_son.isRealNode()) and (not left_son.isRealNode()):
-				if parent is None:
-					self.root = None
-					self.size = 0
-				elif parent.getLeft() is del_node:
-					parent.setLeft(AVLNode())
-					parent.setHeight()
-					parent.setSize()
-
-				else:
-					parent.setRight(AVLNode())
-					parent.setHeight()
-					parent.setSize()
-					del_node.setParent(None)
-
-			# Case 2: The node to delete has one child
-			elif ( not right_son.isRealNode()) or (not left_son.isRealNode()):
-				if parent is None:
-					if left_son.isRealNode():
-						self.root = left_son
-					else:
-						self.root = right_son
-					self.size = 1
-					self.root.setSize(1)
-				elif parent.getLeft() is del_node:
-					if left_son.isRealNode():
-						parent.setLeft(left_son)
-					else:
-						parent.setLeft(right_son)
-					parent.setSize(parent.getSize() - 1)
-				else:
-					if left_son is not None:
-						parent.setRight(left_son)
-					else:
-						parent.setRight(right_son)
-					parent.setSize(parent.getSize() - 1)
-			else:
-				return False, 0
-			if parent is not None:
-				rotation = self.update(parent)
-			else:
-				rotation = 0
-			return True, rotation
-		if self.size == 0:
-			return -1
-		if self.empty() or self.size < i or i < 0:
+		if self.empty() or self.size <= i or i < 0:
 			return -1
 		if i == 0:
 			del_node = self.min(self.root)
 			parent = del_node.getParent()
-			ans = simpleDelete(del_node)[1]
-			if parent is None:
-				self.first_node = del_node.getRight()
-			else:
+			ans = self.simpleDelete(del_node)[1]
+			if parent:
 				self.first_node = parent
 
-		elif i == self.size:
+		elif i == self.size - 1:
 			del_node = self.max(self.root)
-			ans = simpleDelete(del_node)[1]
-			if del_node.getParent() is None:
-				self.last_node = del_node.getRight()
-			else:
-				self.last_node = del_node.getParent()
+			parent = del_node.getParent()
+			ans = self.simpleDelete(del_node)[1]
+			if parent:
+				self.last_node = parent
+
 		else:
 			del_node = self.treeSelect(i + 1)
-			not_case3, ans = simpleDelete(del_node)
+			not_case3, ans = self.simpleDelete(del_node)
 			# Case 3: The node to delete has two children
 			if not not_case3:
 				# Find the successor node (the smallest node in the right subtree)
 				node_succ = self.successor(del_node)
 				# The successor node have one or zero children
-				ans = simpleDelete(node_succ)[1]
+				ans = self.simpleDelete(node_succ)[1]
 				# Replace del_node with his successor
 				node_succ.setParent(del_node.getParent())
 				node_succ.setLeft(del_node.getLeft())
@@ -474,6 +421,66 @@ class AVLTreeList(object):
 				if del_node is self.root:
 					self.root = node_succ
 		return ans
+
+	"""deletes the The node, it gets only if it has one or less children 
+		@type i: AVLNode
+		@rtype: (Boolean, int)
+		@returns: True if the node was deleted and 
+		the number of rebalancing operation due to AVL rebalancing 
+		Otherwise it's return False and 0
+		"""
+	def simpleDelete(self, del_node):
+		right_son = del_node.getLeft()
+		left_son = del_node.getRight()
+		parent = del_node.getParent()
+
+		if parent is None:  # then it's the root
+			# Case 1: The node to delete has no children
+			if (not right_son.isRealNode()) and (not left_son.isRealNode()):  # then it's the only node
+				self.size = 0
+				self.root = AVLNode()
+				self.root.left = AVLNode()
+				self.root.right = AVLNode()
+				self.first_node = None
+				self.last_node = None
+			elif (not right_son.isRealNode()) or (not left_son.isRealNode()):
+				# then the root have one balance subtree from the left or the right
+				if left_son.isRealNode():
+					self.root = left_son
+					self.first_node = left_son
+				else:
+					self.root = right_son
+					self.last_node = right_son
+				self.size = self.root.getSize()
+			else:
+				return False, 0
+			# then the root have 2 children
+		else:
+			# Case 1: The node to delete has no children
+			if (not right_son.isRealNode()) and (not left_son.isRealNode()):
+				if parent.getLeft() is del_node:  # then it's just a leaf
+					parent.setLeft(AVLNode())
+				else:
+					parent.setRight(AVLNode())
+
+			# Case 2: The node to delete has one child
+			elif (not right_son.isRealNode()) or (not left_son.isRealNode()):
+				if parent.getLeft() is del_node:
+					if left_son.isRealNode():
+						parent.setLeft(left_son)
+					else:
+						parent.setLeft(right_son)
+				else:
+					if left_son is not None:
+						parent.setRight(left_son)
+					else:
+						parent.setRight(right_son)
+			else:
+				return False, 0
+		'''rotation = self.update(parent)
+		return True, rotation'''
+
+
 
 
 	'''performs a right rotation arround input node.
@@ -690,7 +697,7 @@ class AVLTreeList(object):
 		h_diff = abs(h_lst - h_self)
 		if h_self < h_lst:
 			pointer = lst.root
-			x = self.last_node
+			x = self.max(self.root)
 			self.delete(self.size)
 			for k in range(h_diff - 1):
 				pointer = pointer.getLeft()
@@ -702,7 +709,7 @@ class AVLTreeList(object):
 			self.root = lst.root
 		else:
 			pointer = self.root
-			x = lst.first_node
+			x = lst.min(self.root)
 			lst.delete(lst.size)
 			for k in range(h_diff - 1):
 				pointer = pointer.getRight()
