@@ -19,8 +19,8 @@ class AVLNode(object):
 		self.left = None
 		self.right = None
 		self.parent = None
-		self.size = 0
 		self.height = -1
+		self.size = 0
 
 	def __repr__(self):
 		s = "value:" + str(self.value) + "right child: " + str(self.right) + "left child: " + str(self.left) + "parent: " + str(self.parent)
@@ -68,13 +68,7 @@ class AVLNode(object):
 	def getHeight(self):
 		return self.height
 
-	"""returns the size of the subtree
 
-		@rtype: int
-		@returns: the height of self, -1 if the node is virtual
-		"""
-	def getSize(self):
-		return self.size
 	"""sets left child
 
 	@type node: AVLNode
@@ -105,20 +99,9 @@ class AVLNode(object):
 	@param node: a node
 	"""
 	def setParent(self, node):
-		#node.setHight(node.getHight + 1)
-		#node.setSize(node.getSize + 1)
 		self.parent = node
 
-	"""sets parent
 
-		@type k: int
-		@param k: the size
-		"""
-	def setSize(self, k = None):
-		if k is None:
-			self.size = 1 + self.getRight().getSize() + self.getLeft().getSize()
-		else:
-			self.size = k
 
 	"""sets value
 	
@@ -151,11 +134,33 @@ class AVLNode(object):
 			return False
 		return True
 
+	'''//////////////////////////////////////////////////////
+	_____________________Extra Methods_______________________
+	/////////////////////////////////////////////////////////'''
+
+	"""returns the size of the subtree
+
+		@rtype: int
+		@returns: the height of self, -1 if the node is virtual
+		"""
+	def getSize(self):
+		return self.size
+
+	"""sets parent
+
+			@type k: int
+			@param k: the size
+			"""
+	def setSize(self, k=None):
+		if k is None:
+			self.size = 1 + self.getRight().getSize() + self.getLeft().getSize()
+		else:
+			self.size = k
+
 	"""" BF() @return the Balance factor of a node
 	"""
 	def BF(self):
 		return self.left.getHeight() - self.right.getHeight()
-
 
 
 """
@@ -171,11 +176,12 @@ class AVLTreeList(object):
 	def __init__(self):
 		self.size = 0
 		self.root = AVLNode()
+		# add your fields here
 		self.root.left = AVLNode()
 		self.root.right = AVLNode()
 		self.first_node = None
 		self.last_node = None
-		# add your fields here
+
 
 
 	"""returns whether the list is empty
@@ -185,56 +191,6 @@ class AVLTreeList(object):
 	"""
 	def empty(self):
 		return self.size == 0
-
-	def getTreeHeight(self):
-		return self.root.getHeight()
-
-	""""Tree-Select return the k'th smallest element in the list
-	@type: (node, int)
-	@pre: 1 <= k < T.lenght()
-	@rtype: node
-	@returns: the k-1'th smallest element of the list (lst[k-1])
-	"""
-	def treeSelect(T, k):
-
-		def treeSelectRec(x,k):
-			r = x.getLeft().getSize() + 1 if x.getLeft() else 0
-			if k == r:
-				return x
-			else:
-				if k < r:
-					return treeSelectRec(x.getLeft(), k)
-				elif k > r:
-					return treeSelectRec(x.getRight(), k - r)
-		return treeSelectRec(T.root, k)
-
-	def update(self, node):
-		rotation = 0
-		curr = node
-		while curr != self.root:
-			bf = curr.BF()
-			height = curr.getHeight()
-			if abs(bf) > 1:
-				curr, rot = self.balance(curr)
-				rotation += rot
-			if curr.getHeight() != height:
-				curr.setHeight()
-			curr.setSize()
-			curr = curr.getParent()
-
-		curr = self.root
-		bf = curr.BF()
-		height = curr.getHeight()
-		if abs(bf) > 1:
-			curr, rot = self.balance(curr)
-			rotation += rot
-		if curr.getHeight() != height:
-			curr.setHeight()
-		curr.setSize()
-		self.root = curr
-		self.size = self.root.getSize()
-		return rotation
-
 
 	"""retrieves the value of the i'th item in the list
 
@@ -299,73 +255,6 @@ class AVLTreeList(object):
 		rotation = self.update(new_node)
 		return rotation
 
-	'''successor refurns next node by rank'''
-
-	def successor(self, node):
-		if node.right.isRealNode():
-			return self.min(node.getRight())
-		parent = node.getParent()
-		curr = node
-		while parent.isRealNode():
-			if parent.getRight() != curr:
-				break
-			curr = parent
-			parent = curr.getParent()
-		return parent
-
-
-	def predecessor(self, node):
-		if node.getLeft().isRealNode():
-			return self.max(node.getLeft())
-		parent = node.getParent()
-		curr = node
-		while parent.isRealNode():
-			if parent.getLeft() != curr:
-				break
-			curr = parent
-			parent = curr.getParent()
-		return parent
-
-
-	'''balnces @input node
-	@return is a tuple(AVLNode, int)
-	@return[0] = top node after balancing
-	@return[1] = number of rotations made'''
-
-	def balance(self, node):
-
-		node2 = node
-		balance = node.BF()
-		left_child = node.getLeft()
-		right_child = node.getRight()
-		rotations = 0
-
-		# Left Left Case
-		if balance > 1 and left_child.BF() >= 0:
-			node2 = self.rightRotation(node)
-			rotations += 1
-
-		# Left Right Case
-		elif balance > 1 and left_child.BF() < 0:
-			new_left = self.leftRotation(left_child)
-			node.setLeft(new_left)
-			node2 = self.rightRotation(node)
-			rotations += 2
-
-		# Right Right Case
-		elif balance < -1 and right_child.BF() <= 0:
-			node2 = self.leftRotation(node)
-			rotations += 1
-
-		# Right Left Case
-		elif balance < -1 and right_child.BF() > 0:
-			new_right = self.rightRotation(right_child)
-			node.setRight(new_right)
-			node2 = self.leftRotation(node)
-			rotations += 2
-
-		return node2, rotations
-
 
 
 	"""deletes the i'th item in the list
@@ -380,47 +269,92 @@ class AVLTreeList(object):
 		if self.empty() or self.size <= i or i < 0:
 			return -1
 		if i == 0:
-			del_node = self.min(self.root)
-			parent = del_node.getParent()
-			ans = self.simpleDelete(del_node)[1]
-			if parent:
-				self.first_node = parent
-
+			rotations = self.deleteNode(self.first_node)
 		elif i == self.size - 1:
-			del_node = self.max(self.root)
-			parent = del_node.getParent()
-			ans = self.simpleDelete(del_node)[1]
-			if parent:
-				self.last_node = parent
-
+			rotations = self.deleteNode(self.last_node)
 		else:
-			del_node = self.treeSelect(i + 1)
-			not_case3, ans = self.simpleDelete(del_node)
-			# Case 3: The node to delete has two children
-			if not not_case3:
-				# Find the successor node (the smallest node in the right subtree)
-				node_succ = self.successor(del_node)
-				# The successor node have one or zero children
-				ans = self.simpleDelete(node_succ)[1]
-				# Replace del_node with his successor
-				node_succ.setParent(del_node.getParent())
-				node_succ.setLeft(del_node.getLeft())
-				node_succ.setRight(del_node.getRight())
-				if (node_succ.getParent()) and (node_succ.getLeft().isRealNode()):
-					node_succ.getLeft().setParent(node_succ)
-				if (node_succ.getParent()) and (node_succ.getRight().isRealNode()):
-					node_succ.getRight().setParent(node_succ)
-				if (node_succ.getParent()) and (node_succ.getParent().isRealNode()):
-					if node_succ.getParent().getLeft() is del_node:
-						node_succ.getParent().setLeft(node_succ)
+			rotations = self.deleteNode(self.treeSelect(i+1))
+
+		return rotations
+
+	def deleteNode(self, node):
+		right_child = node.getLeft()
+		left_child = node.getRight()
+		parent = node.getParent()
+
+		if (not right_child.isRealNode()) or (not left_child.isRealNode()):
+			if self.root is node:
+				if self.size == 1:
+					self.size = 0
+					self.root = AVLNode()
+					self.root.left = AVLNode()
+					self.root.right = AVLNode()
+					self.first_node = None
+					self.last_node = None
+
+				if self.size == 2:
+					if left_child.isRealNode():
+						self.root = left_child
+						self.first_node = left_child
+						self.last_node = left_child
 					else:
-						node_succ.getParent().setRight(node_succ)
-				del_node.setParent(None)
-				del_node.setRight(AVLNode())
-				del_node.setLeft(AVLNode())
-				if del_node is self.root:
-					self.root = node_succ
-		return ans
+						self.root = right_child
+						self.first_node = right_child
+						self.last_node = right_child
+			else:
+				balance_from = self.simpleDelete(node)
+				# update first and last
+				if node is self.first_node:
+					self.first_node = parent
+				if node is self.last_node:
+					self.last_node = parent
+
+		elif right_child and left_child:
+			balance_from = self.twoChildrenDelete(node)
+
+
+
+		return self.update(balance_from)
+
+
+	def simpleDelete(self, del_node):
+		right_son = del_node.getLeft()
+		left_son = del_node.getRight()
+		parent = del_node.getParent()
+
+		if parent.getLeft() is del_node:
+			if left_son.isRealNode():
+				parent.setLeft(left_son)
+			else:
+				parent.setLeft(right_son)
+		else:
+			if left_son is not None:
+				parent.setRight(left_son)
+			else:
+				parent.setRight(right_son)
+		return parent
+
+	def twoChildrenDelete(self,del_node):
+		# Find the successor node (the smallest node in the right subtree)
+		node_succ = self.successor(del_node)
+		# The successor node have one or zero children
+		balance_from = self.simpleDelete(node_succ)
+		# Replace del_node with his successor
+		node_succ.setParent(del_node.getParent())
+		node_succ.setLeft(del_node.getLeft())
+		node_succ.setRight(del_node.getRight())
+		if (node_succ.getParent()) and (node_succ.getLeft().isRealNode()):
+			node_succ.getLeft().setParent(node_succ)
+		if (node_succ.getParent()) and (node_succ.getRight().isRealNode()):
+			node_succ.getRight().setParent(node_succ)
+		if (node_succ.getParent()) and (node_succ.getParent().isRealNode()):
+			if node_succ.getParent().getLeft() is del_node:
+				node_succ.getParent().setLeft(node_succ)
+			else:
+				node_succ.getParent().setRight(node_succ)
+		if del_node is self.root:
+			self.root = node_succ
+		return 	balance_from
 
 	"""deletes the The node, it gets only if it has one or less children 
 		@type i: AVLNode
@@ -429,129 +363,9 @@ class AVLTreeList(object):
 		the number of rebalancing operation due to AVL rebalancing 
 		Otherwise it's return False and 0
 		"""
-	def simpleDelete(self, del_node):
-		right_son = del_node.getLeft()
-		left_son = del_node.getRight()
-		parent = del_node.getParent()
-
-		if parent is None:  # then it's the root
-			# Case 1: The node to delete has no children
-			if (not right_son.isRealNode()) and (not left_son.isRealNode()):  # then it's the only node
-				self.size = 0
-				self.root = AVLNode()
-				self.root.left = AVLNode()
-				self.root.right = AVLNode()
-				self.first_node = None
-				self.last_node = None
-			elif (not right_son.isRealNode()) or (not left_son.isRealNode()):
-				# then the root have one balance subtree from the left or the right
-				if left_son.isRealNode():
-					self.root = left_son
-					self.first_node = left_son
-				else:
-					self.root = right_son
-					self.last_node = right_son
-				self.size = self.root.getSize()
-			else:
-				return False, 0
-			# then the root have 2 children
-		else:
-			# Case 1: The node to delete has no children
-			if (not right_son.isRealNode()) and (not left_son.isRealNode()):
-				if parent.getLeft() is del_node:  # then it's just a leaf
-					parent.setLeft(AVLNode())
-				else:
-					parent.setRight(AVLNode())
-
-			# Case 2: The node to delete has one child
-			elif (not right_son.isRealNode()) or (not left_son.isRealNode()):
-				if parent.getLeft() is del_node:
-					if left_son.isRealNode():
-						parent.setLeft(left_son)
-					else:
-						parent.setLeft(right_son)
-				else:
-					if left_son is not None:
-						parent.setRight(left_son)
-					else:
-						parent.setRight(right_son)
-			else:
-				return False, 0
-		'''rotation = self.update(parent)
-		return True, rotation'''
 
 
 
-
-	'''performs a right rotation arround input node.
-		@return the "new root" after rotation which is the right child of input node'''
-
-	def rightRotation(self, node):
-		left_child = node.getLeft()
-		new_left = left_child.getRight()
-		parent = node.getParent()
-
-		left_child.setRight(node)
-		node.setLeft(new_left)
-
-		#update heights
-		node.setHeight(1 + max(node.getLeft().getHeight(), node.getRight().getHeight()))
-		left_child.setHeight(1 + max(left_child.getLeft().getHeight(), left_child.getRight().getHeight()))
-
-		#update parent pointers
-		node.setParent(left_child)
-		left_child.setParent(parent)
-
-		if parent is not None:
-			if parent.getLeft() == node:
-				parent.setLeft(left_child)
-			else:
-				parent.setRight(left_child)
-		return left_child
-
-
-	'''performs a left rotation arround input node.
-	@return the "new root" after rotation which is the left child of input node'''
-
-	def leftRotation(self, node):
-		right_child = node.getRight()
-		node.setRight(right_child.getLeft())
-
-		right_child.setLeft(node)
-
-		# update heights
-		node.setHeight(1 + max(node.getLeft().getHeight(), node.getRight().getHeight()))
-		right_child.setHeight(1 + max(right_child.getLeft().getHeight(), right_child.getRight().getHeight()))
-
-		# update parent pointers
-		parent = node.getParent()
-		node.setParent(right_child)
-		right_child.setParent(parent)
-
-		if parent is not None:
-			if parent.getLeft() == node:
-				parent.setLeft(right_child)
-			else:
-				parent.setRight(right_child)
-
-		return right_child
-
-
-	"""returns the first_node node of subtree (or sublist) rooted at node
-	@rtype : AVLNode"""
-
-	def min(self, node):
-		if (not node.getLeft()) or not node.getLeft().isRealNode():
-			return node
-		return self.min(node.getLeft())
-
-	"""returns the last_node node of subtree (or sublist) rooted at node
-		@rtype : AVLNode"""
-
-	def max(self, node):
-		if (not node.getRight()) or not node.getRight().isRealNode():
-			return node
-		return self.max(node.getRight())
 
 	"""returns the value of the first_node item in the list
 
@@ -612,43 +426,6 @@ class AVLTreeList(object):
 			sorted_tree.insert(k,tree_valuse[i])
 		return sorted_tree
 
-	def partition(self,array, low, high):
-
-		# choose the rightmost element as pivot
-		pivot = array[high]
-
-		# pointer for greater element
-		i = low - 1
-
-		# traverse through all elements
-		# compare each element with pivot
-		for j in range(low, high):
-			if array[j] <= pivot:
-				# If element smaller than pivot is found
-				# swap it with the greater element pointed by i
-				i = i + 1
-
-				# Swapping element at i with element at j
-				(array[i], array[j]) = (array[j], array[i])
-
-		# Swap the pivot element with the greater element specified by i
-		(array[i + 1], array[high]) = (array[high], array[i + 1])
-
-		# Return the position from where partition is done
-		return i + 1
-
-	def quickSort(self,array, low, high):
-		if low < high:
-			# Find pivot element such that
-			# element smaller than pivot are on the left
-			# element greater than pivot are on the right
-			pi = array.partition(array, low, high)
-
-			# Recursive call on the left of pivot
-			self.quickSort(array, low, pi - 1)
-
-			# Recursive call on the right of pivot
-			self.quickSort(array, pi + 1, high)
 
 	"""permute the info values of the list 
 
@@ -754,7 +531,248 @@ class AVLTreeList(object):
 	def getRoot(self):
 		return self.root
 
-	'''for tester'''
+	'''//////////////////////////////////////////////////////
+	_____________________Extra Methods_______________________
+	/////////////////////////////////////////////////////////'''
+
+	def getTreeHeight(self):
+		return self.root.getHeight()
+
+	""""Tree-Select return the k'th smallest element in the list
+	@type: (node, int)
+	@pre: 1 <= k < T.lenght()
+	@rtype: node
+	@returns: the k-1'th smallest element of the list (lst[k-1])
+	"""
+	def treeSelect(T, k):
+
+		def treeSelectRec(x,k):
+			r = x.getLeft().getSize() + 1 if x.getLeft() else 0
+			if k == r:
+				return x
+			else:
+				if k < r:
+					return treeSelectRec(x.getLeft(), k)
+				elif k > r:
+					return treeSelectRec(x.getRight(), k - r)
+		return treeSelectRec(T.root, k)
+
+	"""Update travel at tree in the path From the given note to the root While balancing the tree and updating the size
+		@type: AVLNode
+		@rtype: int
+		@returns: the Amount of rotation that we did While balancing the tree
+		"""
+
+	def update(self, node):
+		rotation = 0
+		curr = node
+		while curr != self.root:
+			bf = curr.BF()
+			height = curr.getHeight()
+			if abs(bf) > 1:
+				curr, rot = self.balance(curr)
+				rotation += rot
+			if curr.getHeight() != height:
+				curr.setHeight()
+			curr.setSize()
+			curr = curr.getParent()
+
+		curr = self.root
+		bf = curr.BF()
+		height = curr.getHeight()
+		if abs(bf) > 1:
+			curr, rot = self.balance(curr)
+			rotation += rot
+		if curr.getHeight() != height:
+			curr.setHeight()
+		curr.setSize()
+		self.root = curr
+		self.size = self.root.getSize()
+		return rotation
+
+	'''performs a right rotation arround input node.
+			@return the "new root" after rotation which is the right child of input node'''
+
+	def rightRotation(self, node):
+		left_child = node.getLeft()
+		new_left = left_child.getRight()
+		parent = node.getParent()
+
+		left_child.setRight(node)
+		node.setLeft(new_left)
+
+		# update heights
+		node.setHeight(1 + max(node.getLeft().getHeight(), node.getRight().getHeight()))
+		left_child.setHeight(1 + max(left_child.getLeft().getHeight(), left_child.getRight().getHeight()))
+
+		# update parent pointers
+		node.setParent(left_child)
+		left_child.setParent(parent)
+
+		if parent is not None:
+			if parent.getLeft() == node:
+				parent.setLeft(left_child)
+			else:
+				parent.setRight(left_child)
+		return left_child
+
+	'''performs a left rotation arround input node.
+    @return the "new root" after rotation which is the left child of input node'''
+
+	def leftRotation(self, node):
+		right_child = node.getRight()
+		node.setRight(right_child.getLeft())
+
+		right_child.setLeft(node)
+
+		# update heights
+		node.setHeight(1 + max(node.getLeft().getHeight(), node.getRight().getHeight()))
+		right_child.setHeight(1 + max(right_child.getLeft().getHeight(), right_child.getRight().getHeight()))
+
+		# update parent pointers
+		parent = node.getParent()
+		node.setParent(right_child)
+		right_child.setParent(parent)
+
+		if parent is not None:
+			if parent.getLeft() == node:
+				parent.setLeft(right_child)
+			else:
+				parent.setRight(right_child)
+
+		return right_child
+
+	'''balnces @input node
+		@return is a tuple(AVLNode, int)
+		@return[0] = top node after balancing
+		@return[1] = number of rotations made'''
+
+	def balance(self, node):
+
+		node2 = node
+		balance = node.BF()
+		left_child = node.getLeft()
+		right_child = node.getRight()
+		rotations = 0
+
+		# Left Left Case
+		if balance > 1 and left_child.BF() >= 0:
+			node2 = self.rightRotation(node)
+			rotations += 1
+
+		# Left Right Case
+		elif balance > 1 and left_child.BF() < 0:
+			new_left = self.leftRotation(left_child)
+			node.setLeft(new_left)
+			node2 = self.rightRotation(node)
+			rotations += 2
+
+		# Right Right Case
+		elif balance < -1 and right_child.BF() <= 0:
+			node2 = self.leftRotation(node)
+			rotations += 1
+
+		# Right Left Case
+		elif balance < -1 and right_child.BF() > 0:
+			new_right = self.rightRotation(right_child)
+			node.setRight(new_right)
+			node2 = self.leftRotation(node)
+			rotations += 2
+
+		return node2, rotations
+
+	"""returns the successor of a given
+	@type: AVLNode
+	@rtype : AVLNode
+	@return : treeSelect(nodeRank(node) + 1)"""
+
+	def successor(self, node):
+		if node.right.isRealNode():
+			return self.min(node.getRight())
+		parent = node.getParent()
+		curr = node
+		while parent.isRealNode():
+			if parent.getRight() != curr:
+				break
+			curr = parent
+			parent = curr.getParent()
+		return parent
+
+	"""returns the predecessor of a given node
+		@type: AVLNode
+	@rtype : AVLNode
+	@return : treeSelect(nodeRank(node) - 1)"""
+
+	def predecessor(self, node):
+		if node.getLeft().isRealNode():
+			return self.max(node.getLeft())
+		parent = node.getParent()
+		curr = node
+		while parent.isRealNode():
+			if parent.getLeft() != curr:
+				break
+			curr = parent
+			parent = curr.getParent()
+		return parent
+
+	"""returns the first node of subtree (or sublist) rooted at node
+	@rtype : AVLNode"""
+
+	def min(self, node):
+		if (not node.getLeft()) or not node.getLeft().isRealNode():
+			return node
+		return self.min(node.getLeft())
+
+	"""returns the last_node node of subtree (or sublist) rooted at node
+		@rtype : AVLNode"""
+
+	def max(self, node):
+		if (not node.getRight()) or not node.getRight().isRealNode():
+			return node
+		return self.max(node.getRight())
+
+	def partition(self,array, low, high):
+
+		# choose the rightmost element as pivot
+		pivot = array[high]
+
+		# pointer for greater element
+		i = low - 1
+
+		# traverse through all elements
+		# compare each element with pivot
+		for j in range(low, high):
+			if array[j] <= pivot:
+				# If element smaller than pivot is found
+				# swap it with the greater element pointed by i
+				i = i + 1
+
+				# Swapping element at i with element at j
+				(array[i], array[j]) = (array[j], array[i])
+
+		# Swap the pivot element with the greater element specified by i
+		(array[i + 1], array[high]) = (array[high], array[i + 1])
+
+		# Return the position from where partition is done
+		return i + 1
+
+	def quickSort(self,array, low, high):
+		if low < high:
+			# Find pivot element such that
+			# element smaller than pivot are on the left
+			# element greater than pivot are on the right
+			pi = array.partition(array, low, high)
+
+			# Recursive call on the left of pivot
+			self.quickSort(array, low, pi - 1)
+
+			# Recursive call on the right of pivot
+			self.quickSort(array, pi + 1, high)
+
+
+
+
+	'''@@@@@@@@@@@@@@@ for tester @@@@@@@@@@@@@@@'''
 	def append(self, val):
 		self.insert(self.length(), val)
 
