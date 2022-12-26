@@ -281,6 +281,7 @@ class AVLTreeList(object):
 		right_child = node.getLeft()
 		left_child = node.getRight()
 		parent = node.getParent()
+		balance_from = None
 
 		if (not right_child.isRealNode()) or (not left_child.isRealNode()):
 			if self.root is node:
@@ -301,6 +302,7 @@ class AVLTreeList(object):
 						self.root = right_child
 						self.first_node = right_child
 						self.last_node = right_child
+
 			else:
 				balance_from = self.simpleDelete(node)
 				# update first and last
@@ -312,9 +314,10 @@ class AVLTreeList(object):
 		elif right_child and left_child:
 			balance_from = self.twoChildrenDelete(node)
 
-
-
-		return self.update(balance_from)
+		if balance_from is None:
+			return 0
+		else:
+			return self.update(balance_from)
 
 
 	def simpleDelete(self, del_node):
@@ -334,7 +337,7 @@ class AVLTreeList(object):
 				parent.setRight(right_son)
 		return parent
 
-	def twoChildrenDelete(self,del_node):
+	def twoChildrenDelete(self, del_node):
 		# Find the successor node (the smallest node in the right subtree)
 		node_succ = self.successor(del_node)
 		# The successor node have one or zero children
@@ -354,7 +357,10 @@ class AVLTreeList(object):
 				node_succ.getParent().setRight(node_succ)
 		if del_node is self.root:
 			self.root = node_succ
-		return 	balance_from
+
+		if balance_from is del_node:
+			return None
+		return balance_from
 
 	"""deletes the The node, it gets only if it has one or less children 
 		@type i: AVLNode
