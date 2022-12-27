@@ -200,8 +200,8 @@ class testAVLList(unittest.TestCase):
         self.assertIsNone(T.getRoot())
         self.assertIsNone(T.firstItem)
         self.assertIsNone(T.lastItem)
-        self.assertIsNone(T.first_node())
-        self.assertIsNone(T.last_node())
+        self.assertIsNone(T.first())
+        self.assertIsNone(T.last())
 
     def test_delete_from_list_with_two_elements(self):
         T1 = AVLTreeList()
@@ -786,6 +786,9 @@ class testAVLList(unittest.TestCase):
     ### TESTING BALACNE FACTOR ###
 
     def check_BF(self, node, tree):
+        if abs(node.getLeft().getHeight() - node.getRight().getHeight()) > 2:
+            print(node.getValue(), "value of wrong bf")
+            tree.printt()
         self.assertTrue(abs(node.getLeft().getHeight() -
                             node.getRight().getHeight()) < 2)
 
@@ -866,7 +869,6 @@ class testAVLList(unittest.TestCase):
             if i % 5 == 0:
                 T.delete(0)
             elif i % 5 == 1:
-                T.printt()
                 T.delete(T.length()-1)
             elif i % 5 == 2:
                 T.delete((T.length()-1)//2)
@@ -1203,10 +1205,10 @@ class testAVLList(unittest.TestCase):
         self.check_last(self.TR1, self.LR3)
 
     def test_concat_first(self):
-        self.assertEqual(self.TR1.first_node(), self.LR3[0])
+        self.assertEqual(self.TR1.first(), self.LR3[0])
 
     def test_concat_last(self):
-        self.assertEqual(self.TR1.last_node(), self.LR3[-1])
+        self.assertEqual(self.TR1.last(), self.LR3[-1])
 
     def test_concat_height_difference_empty_lists(self):
         T1 = AVLTreeList()
