@@ -583,34 +583,61 @@ class AVLTreeList(object):
 	@returns: the absolute value of the difference between the height of the AVL trees joined
 	"""
 	def concat(self, lst):
+		if self.empty():
+			self.merged(lst)
+			self.first_node = lst.first_node
+			return lst.root.getHeight() if lst.root else 0
+		elif lst.empty():
+			return self.root.getHeight() if self.root else 0
 		h_self = self.root.getHeight()
 		h_lst = lst.root.getHeight()
 		h_diff = abs(h_lst - h_self)
 		if h_self < h_lst:
-			pointer = lst.root
+			if self.size == 1:
+				lst.node_insert(self.root, 0)
+				self.merged(lst)
+				return h_diff
+			c = lst.root
+			b = c.getLeft()
 			x = self.max(self.root)
-			self.delete(self.size)
+			self.delete(self.size - 1)
 			for k in range(h_diff - 1):
-				pointer = pointer.getLeft()
+				c = c.getLeft()
+				b = c.getLeft()
 			x.setLeft(self.root)
 			self.root.setParent(x)
-			x.setRight(pointer.getLeft())
-			pointer.getLeft().setParent(x)
-			pointer.setLeft(x)
-			self.root = lst.root
+			x.setRight(b)
+			b.setParent(x)
+			c.setLeft(x)
+			x.setParent(c)
+			self.merged(lst)
 		else:
-			pointer = self.root
-			x = lst.min(self.root)
-			lst.delete(lst.size)
+			if lst.size == 1:
+				self.node_insert(lst.root, self.size)
+				self.last_node = lst.last_node
+				return h_diff
+			c = self.root
+			b = c.getRight()
+			x = self.min(lst.root)
+			lst.delete(0)
 			for k in range(h_diff - 1):
-				pointer = pointer.getRight()
+				c = c.getRight()
+				b = c.getRight()
 			x.setRight(lst.root)
 			lst.root.setParent(x)
-			x.setLeft(pointer.getRight())
-			pointer.getRight().setParent(x)
-			pointer.setRight(x)
+			lst.root = self.root
+			x.setLeft(b)
+			b.setParent(x)
+			c.setRight(x)
+			x.setParent(c)
+			self.last_node = lst.last_node
 
+		self.update(x)
 		return h_diff
+
+
+
+
 
 	"""searches for a *value* in the list
 
@@ -650,6 +677,11 @@ class AVLTreeList(object):
 	/////////////////////////////////////////////////////////'''
 
 
+
+	def merged(self, other): #other swollows us
+		self.root = other.root
+		self.size = other.root.getSize() if other.root else 0
+		self.last_node = other.last_node
 
 	def set_heights(self, node):
 		return self.inorder_rec(self.root)
