@@ -346,7 +346,10 @@ class AVLTreeList(object):
 			# Special case: Successor is the right child of the node to delete
 			# Replace the node with its right child and update the child's parent pointer
 			child = node.getRight()
+			left = node.getLeft()
 			child.setParent(node.getParent())
+			child.setLeft(left)
+			left.setParent(child)
 			if node.getParent():
 				if node == node.getParent().getLeft():
 					node.getParent().setLeft(child)
@@ -487,7 +490,7 @@ class AVLTreeList(object):
 	@returns: the value of the first_node item, None if the list is empty
 	"""
 	def first(self):
-		return self.first_node.getValue()
+		return self.first_node.getValue() if self.first_node else None
 
 
 
@@ -497,7 +500,7 @@ class AVLTreeList(object):
 	@returns: the value of the last_node item, None if the list is empty
 	"""
 	def last(self): # Max
-		return self.last_node.getValue()
+		return self.last_node.getValue() if self.last_node else None
 
 	"""returns an array representing list 
 
