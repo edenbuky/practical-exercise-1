@@ -499,7 +499,7 @@ class AVLTreeList(object):
 	@rtype: str
 	@returns: the value of the last_node item, None if the list is empty
 	"""
-	def last(self): # Max
+	def last(self): #Max
 		return self.last_node.getValue() if self.last_node else None
 
 	"""returns an array representing list 
