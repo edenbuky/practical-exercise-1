@@ -25,7 +25,6 @@ class AVLNode(object):
 	def __repr__(self):
 		s = "value:" + str(self.value)
 		t = " size = " + str(self.size)  + " height: " + str(self.height)
-		print(s + t)
 		return s + t
 
 
@@ -231,8 +230,10 @@ class AVLTreeList(object):
 		new_node = AVLNode(val)
 		new_node.setHeight(0)
 		new_node.setSize(1)
-		new_node.left = AVLNode()
-		new_node.right = AVLNode()
+		new_node.setLeft(AVLNode())
+		new_node.getLeft().setParent(new_node)
+		new_node.setRight(AVLNode())
+		new_node.getRight().setParent(new_node)
 		if i == 0:
 			self.first_node = new_node
 		if i == self.size:
@@ -269,6 +270,15 @@ class AVLTreeList(object):
 		rotation = self.update(new_node)
 		return rotation
 
+	"""deletes the The node, it gets only if it has one or less children 
+			@type i: AVLNode
+			@rtype: (Boolean, int)
+			@returns: True if the node was deleted and 
+			the number of rebalancing operation due to AVL rebalancing 
+			Otherwise it's return False and 0
+			"""
+
+
 	def	delete_node2(self, node):
 		if node is None:
 			return node
@@ -280,10 +290,12 @@ class AVLTreeList(object):
 			# Case 1: Node to delete is a leaf node
 			# Simply remove the node and update the parent's child pointer
 			if node.getParent():
+				new_virtual = AVLNode()
+				new_virtual.setParent(node.getParent())
 				if node == node.getParent().getLeft():
-					node.getParent().setLeft(AVLNode())
+					node.getParent().setLeft(new_virtual)
 				else:
-					node.getParent().setRight(AVLNode())
+					node.getParent().setRight(new_virtual)
 			else: #node is root
 				self.root = None
 				self.size = 0
@@ -383,103 +395,7 @@ class AVLTreeList(object):
 
 		return rotations
 
-	def deleteNode(self, node):
-		right_child = node.getRight()
-		left_child = node.getLeft()
-		parent = node.getParent()
-		balance_from = None
 
-		if (not right_child.isRealNode()) or (not left_child.isRealNode()):
-			if self.root is node:
-				if self.size == 1:
-					self.size = 0
-					self.root = AVLNode()
-					self.root.left = AVLNode()
-					self.root.right = AVLNode()
-					self.first_node = None
-					self.last_node = None
-
-				if self.size == 2:
-					if left_child.isRealNode():
-						self.root = left_child
-						self.first_node = left_child
-						self.last_node = left_child
-						self.root.setSize()
-						self.size = self.root.getSize()
-					else:
-						self.root = right_child
-						self.first_node = right_child
-						self.last_node = right_child
-						self.root.setSize()
-						self.size = self.root.getSize()
-
-			else:
-				balance_from = self.simpleDelete(node)
-				# update first and last
-				if node is self.first_node:
-					self.first_node = parent
-				if node is self.last_node:
-					self.last_node = parent
-
-		elif right_child and left_child:
-			balance_from = self.twoChildrenDelete(node)
-
-		if balance_from is None:
-			return 0
-		else:
-			return self.update(balance_from)
-
-
-	def simpleDelete(self, del_node):
-		right_son = del_node.getRight()
-		left_son = del_node.getLeft()
-		parent = del_node.getParent()
-
-		if parent.getLeft() is del_node:
-			if left_son.isRealNode():
-				parent.setLeft(left_son)
-			else:
-				parent.setLeft(right_son)
-		else: #del_node is right child
-			if left_son.isRealNode():
-				parent.setRight(left_son)
-			else:
-				parent.setRight(right_son)
-		return parent
-
-	def twoChildrenDelete(self, del_node):
-		# Find the successor node (the smallest node in the right subtree)
-		node_succ = self.successor(del_node)
-		# The successor node have one or zero children
-		balance_from = self.simpleDelete(node_succ)
-
-		# Replace del_node with his successor
-		node_succ.setParent(del_node.getParent())
-		node_succ.setLeft(del_node.getLeft())
-		node_succ.setRight(del_node.getRight())
-
-		#update children and parent pointers to point at successor
-		node_succ.getLeft().setParent(node_succ)
-		node_succ.getRight().setParent(node_succ)
-		if node_succ.getParent():
-			if node_succ.getParent().getLeft() is del_node:
-				node_succ.getParent().setLeft(node_succ)
-			else:
-				node_succ.getParent().setRight(node_succ)
-		if del_node is self.root:
-			self.root = node_succ
-
-		if balance_from is del_node:
-			return node_succ
-		return balance_from
-
-	"""deletes the The node, it gets only if it has one or less children 
-		@type i: AVLNode
-		@rtype: (Boolean, int)
-		@returns: True if the node was deleted and 
-		the number of rebalancing operation due to AVL rebalancing 
-		Otherwise it's return False and 0
-		"""
 
 
 
@@ -532,7 +448,8 @@ class AVLTreeList(object):
 	@rtype: list
 	@returns: an AVLTreeList where the values are sorted by the info of the original list.
 	"""
-	def sort(self):
+
+	'''def sort(self):
 		sorted_tree = AVLTreeList()
 		if self.empty():
 			return sorted_tree
@@ -541,7 +458,27 @@ class AVLTreeList(object):
 		for i in range(len(tree_valuse)):
 			k = sorted_tree.size
 			sorted_tree.insert(k,tree_valuse[i])
-		return sorted_tree
+		return sorted_tree'''
+
+	def sort(self):
+		current = self.root
+		stack = []  # initialize stack
+		new_tree = AVLTreeList()
+
+		while True:
+			if current.isRealNode():
+				stack.append(current)
+				current = current.getLeft()
+			elif (stack):
+				current = stack.pop()
+				key = current.getValue()
+				new_tree.insert_for_sort(key)
+				current = current.right
+			else:
+				break
+
+		return new_tree
+
 
 
 	"""permute the info values of the list 
@@ -550,7 +487,6 @@ class AVLTreeList(object):
 	@returns: an AVLTreeList where the values are permuted randomly by the info of the original list. ##Use Randomness
 	"""
 	def permutation(self):
-		print("perm")
 		stack = [self.root]
 		perm_lst = []
 		while len(stack) > 0:
@@ -650,22 +586,28 @@ class AVLTreeList(object):
 	@returns: the first_node index that contains val, -1 if not found.
 	"""
 	def search(self, val):
-		def count_left_nodes(node):
-			if not node.isRealNode():
-				return 0
-			return 1 + count_left_nodes(node.getLeft()) + count_left_nodes(node.getRight())
+		current = self.root
+		stack = []  # initialize stack
+		cnt = 0
 
-		queue = [self.root]
-		while queue:
-			current = queue.pop(0)
-			left_count = count_left_nodes(current.getLeft())
-			if current.getValue() == val:
-				return left_count + 1
-			if current.getLeft().isRealNode():
-				queue.append(current.getLeft())
-			if current.getRight().isRealNode():
-				queue.append(current.getRight())
+		while True:
+			if current and current.isRealNode():
+				stack.append(current)
+				current = current.getLeft()
+			elif (stack):
+				current = stack.pop()
+				if current.getValue() == val:
+					return cnt
+				cnt += 1
+				current = current.right
+			else:
+				break
+
 		return -1
+
+
+
+
 
 	"""returns the root of the tree representing the list
 
@@ -680,6 +622,35 @@ class AVLTreeList(object):
 	/////////////////////////////////////////////////////////'''
 
 
+	def insert_for_sort(self, key):
+		new_node = AVLNode(key)
+		new_node.setHeight(0)
+		new_node.setSize(1)
+		new_node.setLeft(AVLNode())
+		new_node.getLeft().setParent(new_node)
+		new_node.setRight(AVLNode())
+		new_node.getRight().setParent(new_node)
+
+		def insert_rec(node, new_node):
+			if new_node.getValue() < node.getValue():
+				if not node.getLeft().isRealNode():
+					node.setLeft(new_node)
+					new_node.setParent(node)
+				else:
+					insert_rec(node.getLeft(), new_node)
+			else:
+				if not node.getRight().isRealNode():
+					node.setRight(new_node)
+					new_node.setParent(node)
+				else:
+					insert_rec(node.getRight(), new_node)
+			return
+
+		if self.root is None:
+			self.root = new_node
+		else:
+			insert_rec(self.root, new_node)
+			self.update(new_node)
 
 	def merged(self, other): #other swollows us
 		self.root = other.root

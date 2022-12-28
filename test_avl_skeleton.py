@@ -1299,7 +1299,7 @@ class testAVLList(unittest.TestCase):
         self.in_order(res[2], res[2].getRoot(), self.check_BF)
         self.check_root(res[2])
 
-    def test_split_basic(self):
+    '''def test_split_basic(self):
         L = []
         T = AVLTreeList()
 
@@ -1359,9 +1359,9 @@ class testAVLList(unittest.TestCase):
             T.append(i*17)
 
         res = T.split(1319)
-        self.check_split(L, res, 1319)
+        self.check_split(L, res, 1319)'''
 
-    def test_search_after_split(self):
+    '''def test_search_after_split(self):
         for j in range(100):
             if j % 10 == 0:
                 L = []
@@ -1400,13 +1400,13 @@ class testAVLList(unittest.TestCase):
                         self.assertEqual(T2.search(L2[j]), j)
 
                     self.assertEqual(-1, T1.search(-20))
-                    self.assertEqual(-1, T2.search(-20))
+                    self.assertEqual(-1, T2.search(-20))'''
 
-    def test_num_of_balnce_ops(self):
+    '''def test_num_of_balnce_ops(self):
         T = AVLTreeList()
         self.assertEqual(T.append(3), 0)
         self.assertEqual(T.insert(0, 1), 1)
-        self.assertEqual(T.insert(1, 2), 3)
+        self.assertEqual(T.insert(1, 2), 3)'''
 
     # def test_successor_and_predeccessor(self):
     #     T = AVLTreeList()
