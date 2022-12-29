@@ -1,6 +1,6 @@
 #username - complete info
-#id1      - complete info
-#name1    - complete info
+#id1      - 207482993
+#name1    - Yael Yacobovich
 #id2      - 316444892
 #name2    - Eden Buky
 
@@ -76,7 +76,6 @@ class AVLNode(object):
 	"""
 	def setLeft(self, node):
 		self.left = node
-		#self.height = 1 + max(self.getLeft().getHeight(), self.getRight().getHeight())
 
 
 
@@ -88,7 +87,6 @@ class AVLNode(object):
 	"""
 	def setRight(self, node):
 		self.right = node
-		#self.height = 1 + max(self.getLeft().getHeight(), self.getRight().getHeight())
 
 
 
@@ -113,7 +111,7 @@ class AVLNode(object):
 		self.value = value
 
 
-	"""sets the balance factor of the node
+	"""sets height of the node
 
 	@type h: int
 	@param h: the height
@@ -139,7 +137,7 @@ class AVLNode(object):
 	_____________________Extra Methods_______________________
 	/////////////////////////////////////////////////////////'''
 
-	"""returns the size of the subtree
+	"""returns the size (number of nodes) of the subtree
 
 		@rtype: int
 		@returns: the height of self, -1 if the node is virtual
@@ -149,7 +147,7 @@ class AVLNode(object):
 		return self.size
 
 
-	"""sets parent
+	"""sets Size of the subtree 
 
 			@type k: int
 			@param k: the size
@@ -182,14 +180,6 @@ class AVLTreeList(object):
 		# add your fields here
 		self.first_node = self.min(self.root) if self.root else None
 		self.last_node = self.max(self.root) if self.root else None
-		self.firstItem = self.min(self.root) if self.root else None
-		self.lastItem = self.max(self.root) if self.root else None
-
-	def __repr__(self):
-		s ="size: " + str(self.size) + "\nroot value: " + str(self.root.getValue()) + "\nright son: " + str(self.root.getRight().getValue())
-		t = "\nleft son: " + str(self.root.getLeft().getValue()) + "\nroot BF: " + str(self.root.BF())
-		print(s + t)
-		return s+t
 
 
 
@@ -225,8 +215,6 @@ class AVLTreeList(object):
 	@returns: the number of rebalancing operation due to AVL rebalancing
 	"""
 	def insert(self, i, val):
-		if i < 0 or i > self.size:
-			return None
 		new_node = AVLNode(val)
 		new_node.setHeight(0)
 		new_node.setSize(1)
@@ -270,15 +258,32 @@ class AVLTreeList(object):
 		rotation = self.update(new_node)
 		return rotation
 
-	"""deletes the The node, it gets only if it has one or less children 
-			@type i: AVLNode
-			@rtype: (Boolean, int)
-			@returns: True if the node was deleted and 
-			the number of rebalancing operation due to AVL rebalancing 
-			Otherwise it's return False and 0
+	"""deletes the i'th item in the list
+
+		@type i: int
+		@pre: 0 <= i < self.length()
+		@param i: The intended index in the list to be deleted
+		@rtype: int
+		@returns: the number of rebalancing operation due to AVL rebalancing
+		"""
+
+	def delete(self, i):
+		if self.empty() or self.size <= i or i < 0:
+			return -1
+		if i == 0:
+			rotations = self.delete_node2(self.first_node)
+		elif i == self.size - 1:
+			rotations = self.delete_node2(self.last_node)
+		else:
+			rotations = self.delete_node2(self.treeSelect(i + 1))
+
+		return rotations
+
+	"""deletes the The node it gets and return the amount of rotation that needed to be done to balance the tree
+			@type node: AVLNode
+			@rtype: int
+			@returns: the amount of rotation return by update or 0
 			"""
-
-
 	def	delete_node2(self, node):
 		if node is None:
 			return node
@@ -331,7 +336,7 @@ class AVLTreeList(object):
 			return rot
 
 			# Case 3: Node to delete has two children
-			# Find the in-order successor of the node (the leftmost child of the node's right subtree)
+			# Find the successor of the node (the leftmost child of the node's right subtree)
 			# and move the successor to the node's position
 		successor = self.min(node.getRight())
 		if successor.getParent() != node and successor.getParent():
@@ -374,32 +379,6 @@ class AVLTreeList(object):
 			return rot
 
 
-
-	"""deletes the i'th item in the list
-
-	@type i: int
-	@pre: 0 <= i < self.length()
-	@param i: The intended index in the list to be deleted
-	@rtype: int
-	@returns: the number of rebalancing operation due to AVL rebalancing
-	"""
-	def delete(self, i):
-		if self.empty() or self.size <= i or i < 0:
-			return -1
-		if i == 0:
-			rotations = self.delete_node2(self.first_node)
-		elif i == self.size - 1:
-			rotations = self.delete_node2(self.last_node)
-		else:
-			rotations = self.delete_node2(self.treeSelect(i+1))
-
-		return rotations
-
-
-
-
-
-
 	"""returns the value of the first_node item in the list
 
 	@rtype: str
@@ -433,8 +412,6 @@ class AVLTreeList(object):
 		return lst_to_arr_rec(self.root)
 
 
-
-
 	"""returns the size of the list 
 
 	@rtype: int
@@ -443,26 +420,15 @@ class AVLTreeList(object):
 	def length(self):
 		return self.size
 
-	"""sort the info values of the list
+	"""sort the info values of the list 
 
 	@rtype: list
 	@returns: an AVLTreeList where the values are sorted by the info of the original list.
 	"""
 
-	'''def sort(self):
-		sorted_tree = AVLTreeList()
-		if self.empty():
-			return sorted_tree
-		tree_valuse = self.listToArray()
-		self.quickSort(tree_valuse, 0, self.size)
-		for i in range(len(tree_valuse)):
-			k = sorted_tree.size
-			sorted_tree.insert(k,tree_valuse[i])
-		return sorted_tree'''
-
 	def sort(self):
 		current = self.root
-		stack = []  # initialize stack
+		stack = []
 		new_tree = AVLTreeList()
 
 		while True:
@@ -488,10 +454,10 @@ class AVLTreeList(object):
 	"""
 	def permutation(self):
 		stack = [self.root]
-		perm_lst = []
+		perm_lst = AVLTreeList()
 		while len(stack) > 0:
 			node = stack.pop()
-			perm_lst.append(node.getValue())
+			perm_lst.insert(0, node.getValue())
 			if node.getLeft().isRealNode() and node.getRight().isRealNode():
 				rand = random.random()
 				if rand >= 0.5:
@@ -505,13 +471,7 @@ class AVLTreeList(object):
 			elif node.getRight().isRealNode():
 				stack.append(node.getRight())
 
-
-		perm = AVLTreeList()
-		for i in range(len(perm_lst)):
-			val = perm_lst[i]
-			perm.insert(i, val)
-
-		return perm
+		return perm_lst
 
 
 	"""concatenates lst to self
@@ -575,9 +535,6 @@ class AVLTreeList(object):
 		return h_diff
 
 
-
-
-
 	"""searches for a *value* in the list
 
 	@type val: str
@@ -606,9 +563,6 @@ class AVLTreeList(object):
 		return -1
 
 
-
-
-
 	"""returns the root of the tree representing the list
 
 	@rtype: AVLNode
@@ -621,7 +575,11 @@ class AVLTreeList(object):
 	_____________________Extra Methods_______________________
 	/////////////////////////////////////////////////////////'''
 
+	"""inserts by key at position key in the list
 
+		@type key: str
+		@param key: the key we inserts and the position in the tree
+		"""
 	def insert_for_sort(self, key):
 		new_node = AVLNode(key)
 		new_node.setHeight(0)
@@ -652,20 +610,13 @@ class AVLTreeList(object):
 			insert_rec(self.root, new_node)
 			self.update(new_node)
 
+	"""Update managed list when other size is bigger than self size
+	"""
 	def merged(self, other): #other swollows us
 		self.root = other.root
 		self.size = other.root.getSize() if other.root else 0
 		self.last_node = other.last_node
 
-	def set_heights(self, node):
-		return self.inorder_rec(self.root)
-
-	def inorder_rec(self, node):
-		if node == None:
-			return
-		self.inorder_rec(node.getLeft())
-		node.setHeight(1 + max(node.getLeft().getHeight(), node.getRight().getHeight()))
-		self.inorder_rec(node.getRight())
 
 	""""Tree-Select return the k'th smallest element in the list
 	@type: (node, int)
@@ -872,119 +823,7 @@ class AVLTreeList(object):
 			return node
 		return self.max(node.getRight())
 
-	def partition(self,array, low, high):
-
-		# choose the rightmost element as pivot
-		pivot = array[high]
-
-		# pointer for greater element
-		i = low - 1
-
-		# traverse through all elements
-		# compare each element with pivot
-		for j in range(low, high):
-			if array[j] <= pivot:
-				# If element smaller than pivot is found
-				# swap it with the greater element pointed by i
-				i = i + 1
-
-				# Swapping element at i with element at j
-				(array[i], array[j]) = (array[j], array[i])
-
-		# Swap the pivot element with the greater element specified by i
-		(array[i + 1], array[high]) = (array[high], array[i + 1])
-
-		# Return the position from where partition is done
-		return i + 1
-
-	def quickSort(self,array, low, high):
-		if low < high:
-			# Find pivot element such that
-			# element smaller than pivot are on the left
-			# element greater than pivot are on the right
-			pi = array.partition(array, low, high)
-
-			# Recursive call on the left of pivot
-			self.quickSort(array, low, pi - 1)
-
-			# Recursive call on the right of pivot
-			self.quickSort(array, pi + 1, high)
-
-
-
-
-	'''@@@@@@@@@@@@@@@ for tester @@@@@@@@@@@@@@@'''
-	def append(self, val):
-		self.insert(self.length(), val)
-
-	### PRINT TREE FUNCTIONS ###
-
-	def printt(self):
-		out = ""
-		for row in self.printree(self.root):  # need printree.py file
-			out = out + row + "\n"
-		print(out)
-
-	def printree(self, t, bykey=True):
-		# for row in trepr(t, bykey):
-		#        print(row)
-		return self.trepr(t, False)
-
-	def trepr(self, t, bykey=False):
-		if t == None:
-			return ["#"]
-
-		thistr = str(t.key) if bykey else str(t.getValue())
-
-		return self.conc(self.trepr(t.left, bykey), thistr, self.trepr(t.right, bykey))
-
-	def conc(self, left, root, right):
-
-		lwid = len(left[-1])
-		rwid = len(right[-1])
-		rootwid = len(root)
-
-		result = [(lwid + 1) * " " + root + (rwid + 1) * " "]
-
-		ls = self.leftspace(left[0])
-		rs = self.rightspace(right[0])
-		result.append(ls * " " + (lwid - ls) * "_" + "/" + rootwid *
-					  " " + "\\" + rs * "_" + (rwid - rs) * " ")
-
-		for i in range(max(len(left), len(right))):
-			row = ""
-			if i < len(left):
-				row += left[i]
-			else:
-				row += lwid * " "
-
-			row += (rootwid + 2) * " "
-
-			if i < len(right):
-				row += right[i]
-			else:
-				row += rwid * " "
-
-			result.append(row)
-
-		return result
-
-	def leftspace(self, row):
-		# row is the first_node row of a left node
-		# returns the index of where the second whitespace starts
-		i = len(row) - 1
-		while row[i] == " ":
-			i -= 1
-		return i + 1
-
-	def rightspace(self, row):
-		# row is the first_node row of a right node
-		# returns the index of where the first_node whitespace ends
-		i = 0
-		while row[i] == " ":
-			i += 1
-		return i
-
+	"""///////////////////////////////////////////////////"""
 
 
 

@@ -1,21 +1,20 @@
 from avl_template_new import AVLTreeList
 from test_avl_skeleton import testAVLList
 
-t = testAVLList()
-L = []
 T = AVLTreeList()
+for i in range(16):
+    T.insert(0,i)
 
-for i in range(10):
-    T.insert(0, i)
-    L.append(i)
-perm1 = T.permutation()
-perm2 = T.permutation()
-perm3 = T.permutation()
+T.printt()
+t1 = T.permutation()
+t2 = T.permutation()
+t3 = T.permutation()
 
-perm1.printt()
-perm2.printt()
-perm3.printt()
-print("end")
+t1.printt()
+t2.printt()
+t3.printt()
+
+
 
 
 
